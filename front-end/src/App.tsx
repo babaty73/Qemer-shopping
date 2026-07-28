@@ -1,11 +1,34 @@
-function App() {
+import { Suspense, lazy } from "react";
+import { Routes, Route, Outlet } from "react-router-dom";
+import { Layout } from "@/components/layout/Layout";
+
+const Home = lazy(() => import("@/pages/Home"));
+
+/**
+ * Only the Home route is wired so far — Shop, Product Details, About,
+ * Contact, and the Admin routes are added in their own milestones as each
+ * page is actually built, so there are no stub/placeholder routes here.
+ */
+function StorefrontLayout() {
   return (
-    <div className="min-h-screen bg-emerald-500 flex items-center justify-center">
-      <h1 className="text-5xl font-bold text-white">
-        Kemer Market
-      </h1>
-    </div>
+    <Layout>
+      <Outlet />
+    </Layout>
   );
 }
 
-export default App;
+function PageFallback() {
+  return <div className="flex min-h-[60vh] items-center justify-center text-sm text-neutral-400">Loading…</div>;
+}
+
+export default function App() {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <Routes>
+        <Route element={<StorefrontLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+      </Routes>
+    </Suspense>
+  );
+}
