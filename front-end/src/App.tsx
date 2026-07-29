@@ -4,11 +4,14 @@ import { Layout } from "@/components/layout/Layout";
 
 const Home = lazy(() => import("@/pages/Home"));
 const Shop = lazy(() => import("@/pages/Shop"));
+const ProductDetails = lazy(() => import("@/pages/ProductDetails"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
 
 /**
- * Home and Shop are wired so far — Product Details, About, Contact, and the
- * Admin routes are added in their own milestones as each page is actually
- * built, so there are no stub/placeholder routes here.
+ * Home, Shop, Product Details, About, and Contact are wired so far — the
+ * Admin routes are added once the Product API + auth milestone lands, so
+ * there are no stub/placeholder routes here.
  */
 function StorefrontLayout() {
   return (
@@ -29,6 +32,9 @@ export default function App() {
         <Route element={<StorefrontLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
+          <Route path="/shop/:slug" element={<ProductDetails />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Route>
       </Routes>
     </Suspense>

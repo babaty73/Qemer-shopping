@@ -30,15 +30,18 @@ interface OrderMessageInput {
   name: string;
   price: number;
   slug: string;
+  /** e.g. "Color: Black, Size: M" — appended as its own line when provided. */
+  variant?: string;
 }
 
-function buildOrderMessage({ name, price, slug }: OrderMessageInput): string {
-  return [
+function buildOrderMessage({ name, price, slug, variant }: OrderMessageInput): string {
+  const lines = [
     "Hi Kemer Market, I'd like to order:",
     `Product: ${name}`,
-    `Price: ${formatPrice(price)}`,
-    `Link: ${getProductUrl(slug)}`,
-  ].join("\n");
+  ];
+  if (variant) lines.push(variant);
+  lines.push(`Price: ${formatPrice(price)}`, `Link: ${getProductUrl(slug)}`);
+  return lines.join("\n");
 }
 
 /** Deep link that opens a prefilled order message with the Kemer Market Telegram account. */
@@ -58,4 +61,31 @@ export function getWhatsAppOrderLink(product: OrderMessageInput): string {
 /** Convert "Green" -> "green", used for mapping color names to swatch tokens. */
 export function slugifyToken(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+interface ContactMessageInput {
+  name: string;
+  email?: string;
+  message: string;
+}
+
+function buildContactMessage({ name, email, message }: ContactMessageInput): string {
+  const lines = [`Hi Kemer Market, my name is ${name}.`];
+  if (email) lines.push(`Email: ${email}`);
+  lines.push("", message);
+  return lines.join("\n");
+}
+
+/** Deep link that opens Telegram with the contact form's message prefilled. */
+export function getTelegramContactLink(input: ContactMessageInput): string {
+  const username = import.meta.env.VITE_TELEGRAM_USERNAME ?? "kemermarket";
+  const text = encodeURIComponent(buildContactMessage(input));
+  return `https://t.me/${username}?text=${text}`;
+}
+
+/** Deep link that opens WhatsApp with the contact form's message prefilled. */
+export function getWhatsAppContactLink(input: ContactMessageInput): string {
+  const phone = import.meta.env.VITE_WHATSAPP_NUMBER ?? "251900000000";
+  const text = encodeURIComponent(buildContactMessage(input));
+  return `https://wa.me/${phone}?text=${text}`;
 }
