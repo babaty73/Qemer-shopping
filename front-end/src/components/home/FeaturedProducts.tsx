@@ -1,10 +1,32 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ProductGrid } from "@/components/product/ProductGrid";
-import { FEATURED_PRODUCTS } from "@/lib/mockData";
+import { getProducts } from "@/services/products";
+import type { Product } from "@/types";
 
 export function FeaturedProducts() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getProducts({ featured: true, limit: 4 })
+      .then((res) => {
+        if (active) setProducts(res.products);
+      })
+      .catch(() => {
+        if (active) setProducts([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <section className="bg-neutral-50 py-20 sm:py-24">
       <div className="container">
@@ -23,7 +45,7 @@ export function FeaturedProducts() {
         </div>
 
         <div className="mt-10">
-          <ProductGrid products={FEATURED_PRODUCTS} />
+          <ProductGrid products={products} loading={loading} />
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { SearchBar } from "@/components/ui/SearchBar";
@@ -6,16 +6,17 @@ import { CategoryFilter } from "@/components/shop/CategoryFilter";
 import { SortSelect } from "@/components/shop/SortSelect";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { Pagination } from "@/components/ui/Pagination";
-import { ALL_PRODUCTS } from "@/lib/mockData";
-import { slugifyToken } from "@/lib/utils";
+import { getProducts } from "@/services/products";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import type { ProductFilters } from "@/types";
+import { useToast } from "@/context/ToastContext";
+import type { Product, ProductFilters } from "@/types";
 
 const PAGE_SIZE = 8;
 type SortValue = NonNullable<ProductFilters["sort"]>;
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { showToast } = useToast();
 
   const category = searchParams.get("category");
   const sort = (searchParams.get("sort") as SortValue | null) ?? "newest";
@@ -40,39 +41,44 @@ export default function Shop() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
-  const filtered = useMemo(() => {
-    let result = ALL_PRODUCTS;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-    if (debouncedSearch) {
-      const q = debouncedSearch.toLowerCase();
-      result = result.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
-      );
-    }
-
-    if (category) {
-      result = result.filter((p) => slugifyToken(p.category) === category);
-    }
-
-    return [...result].sort((a, b) => {
-      if (sort === "price_asc") return a.price - b.price;
-      if (sort === "price_desc") return b.price - a.price;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [debouncedSearch, category, sort]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(Math.max(page, 1), totalPages);
-  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  // Brief simulated loading state whenever the visible result set changes —
-  // stands in for the network round trip once this reads from the real API.
-  const [loading, setLoading] = useState(false);
   useEffect(() => {
+    let active = true;
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, [debouncedSearch, category, sort, safePage]);
+
+    getProducts({
+      search: debouncedSearch || undefined,
+      category: category ?? undefined,
+      sort,
+      page,
+      limit: PAGE_SIZE,
+    })
+      .then((res) => {
+        if (!active) return;
+        setProducts(res.products);
+        setTotalResults(res.totalResults);
+        setTotalPages(res.totalPages);
+      })
+      .catch((err) => {
+        if (!active) return;
+        showToast(err instanceof Error ? err.message : "Failed to load products", "error");
+        setProducts([]);
+        setTotalResults(0);
+        setTotalPages(1);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, category, sort, page]);
 
   function updateParam(key: "category" | "sort" | "page", value: string | null) {
     setSearchParams((prev) => {
@@ -89,7 +95,7 @@ export default function Shop() {
       <SectionTitle
         eyebrow="Shop"
         title="All products"
-        description={`${filtered.length} item${filtered.length === 1 ? "" : "s"}`}
+        description={`${totalResults} item${totalResults === 1 ? "" : "s"}`}
       />
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -103,7 +109,7 @@ export default function Shop() {
 
       <div className="mt-10">
         <ProductGrid
-          products={paged}
+          products={products}
           loading={loading}
           emptyMessage="Try a different search term or category."
         />
@@ -111,11 +117,7 @@ export default function Shop() {
 
       {!loading && (
         <div className="mt-12">
-          <Pagination
-            page={safePage}
-            totalPages={totalPages}
-            onChange={(p) => updateParam("page", String(p))}
-          />
+          <Pagination page={page} totalPages={totalPages} onChange={(p) => updateParam("page", String(p))} />
         </div>
       )}
     </div>

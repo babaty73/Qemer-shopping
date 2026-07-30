@@ -7,6 +7,7 @@ mongoose.set("strictQuery", true);
 export async function connectDB() {
   mongoose.connection.on("connected", () => {
     // eslint-disable-next-line no-console
+
     console.log("MongoDB connected");
   });
 

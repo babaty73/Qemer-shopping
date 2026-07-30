@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { ImageGallery } from "@/components/product/ImageGallery";
@@ -8,9 +8,11 @@ import { OrderButtons } from "@/components/product/OrderButtons";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Badge } from "@/components/ui/Badge";
-import { ALL_PRODUCTS } from "@/lib/mockData";
-import { cn, formatPrice } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/Button";
+import { getProductBySlug, getProducts } from "@/services/products";
+import { cn, formatPrice } from "@/lib/utils";
+import { categorySlugForName } from "@/lib/mockData";
+import type { Product } from "@/types";
 
 function buildVariantLabel(color?: string, size?: string): string | undefined {
   const parts = [color && `Color: ${color}`, size && `Size: ${size}`].filter(Boolean);
@@ -19,23 +21,46 @@ function buildVariantLabel(color?: string, size?: string): string | undefined {
 
 export default function ProductDetails() {
   const { slug } = useParams<{ slug: string }>();
-  const product = useMemo(() => ALL_PRODUCTS.find((p) => p.slug === slug), [slug]);
 
-  const [selectedColor, setSelectedColor] = useState(product?.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product?.sizes[0]);
+  // undefined = still loading, null = confirmed not found
+  const [product, setProduct] = useState<Product | null | undefined>(undefined);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string>();
+  const [selectedSize, setSelectedSize] = useState<string>();
 
-  // Reset the selection whenever the visitor navigates to a different product.
   useEffect(() => {
-    setSelectedColor(product?.colors[0]);
-    setSelectedSize(product?.sizes[0]);
-  }, [product]);
+    if (!slug) return;
+    let active = true;
+    setProduct(undefined);
+    setRelated([]);
 
-  const related = useMemo(() => {
-    if (!product) return [];
-    return ALL_PRODUCTS.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4);
-  }, [product]);
+    getProductBySlug(slug)
+      .then((fetched) => {
+        if (!active) return;
+        setProduct(fetched);
+        setSelectedColor(fetched.colors[0]);
+        setSelectedSize(fetched.sizes[0]);
 
-  if (!product) {
+        const categorySlug = categorySlugForName(fetched.category);
+        return getProducts({ category: categorySlug, exclude: fetched.slug, limit: 4 });
+      })
+      .then((res) => {
+        if (active && res) setRelated(res.products);
+      })
+      .catch(() => {
+        if (active) setProduct(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
+  if (product === undefined) {
+    return <div className="container py-32 text-center text-sm text-neutral-400">Loading…</div>;
+  }
+
+  if (product === null) {
     return (
       <div className="container flex flex-col items-center py-32 text-center">
         <p className="text-lg font-medium text-neutral-900">Product not found</p>
