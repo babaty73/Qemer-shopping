@@ -1,16 +1,7 @@
 import mongoose from "mongoose";
+import { slugify } from "../utils/slugify.js";
 
 const { Schema } = mongoose;
-
-/** "Wireless Charger Pro" -> "wireless-charger-pro" */
-function slugify(value) {
-  return value
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
 
 const productSchema = new Schema(
   {

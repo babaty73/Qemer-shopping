@@ -5,6 +5,9 @@ import morgan from "morgan";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import productRouter from "./routes/productRoutes.js";
+import authRouter from "./routes/authRoutes.js";
+import uploadRouter from "./routes/uploadRoutes.js";
 
 export const app = express();
 
@@ -34,9 +37,9 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
 
-// Product/Admin routers are mounted here starting in the next milestone:
-// app.use("/api/products", productRouter);
-// app.use("/api/admin", adminRouter);
+app.use("/api/products", productRouter);
+app.use("/api/admin", authRouter);
+app.use("/api/uploads", uploadRouter);
 
 app.use(notFound);
 app.use(errorHandler);
