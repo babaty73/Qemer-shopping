@@ -11,6 +11,7 @@ const Shop = lazy(() => import("@/pages/Shop"));
 const ProductDetails = lazy(() => import("@/pages/ProductDetails"));
 const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const Dashboard = lazy(() => import("@/pages/admin/Dashboard"));
 const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
@@ -43,6 +44,7 @@ export default function App() {
               <Route path="/shop/:slug" element={<ProductDetails />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             <Route path="/admin/login" element={<AdminLogin />} />
