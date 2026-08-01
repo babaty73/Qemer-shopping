@@ -28,8 +28,18 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 768 && mobileOpen) {
+        setMobileOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, [mobileOpen]);
+
   return (
-    <header
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled ? "border-b border-border bg-surface shadow-soft" : "border-b border-transparent bg-transparent"
