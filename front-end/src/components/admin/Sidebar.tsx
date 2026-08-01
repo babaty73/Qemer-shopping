@@ -19,8 +19,8 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 shrink-0 flex-col border-r border-border bg-surface shadow-xl transition-transform duration-200 ease-out sm:static sm:translate-x-0 sm:shadow-none",
-        open ? "translate-x-0" : "-translate-x-full"
+        "fixed inset-y-0 left-0 z-40 w-64 flex-col border-r border-border bg-surface shadow-xl transition-transform duration-200 ease-out sm:static sm:shadow-none",
+        open ? "block translate-x-0" : "hidden -translate-x-full"
       )}
     >
       <div className="flex h-full flex-col px-6 py-6">
