@@ -13,7 +13,7 @@ export function CallToAction() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="overflow-hidden rounded-3xl bg-neutral-900 px-8 py-16 text-center sm:px-16"
+          className="overflow-hidden rounded-3xl bg-gradient-to-br from-neutral-900 via-neutral-900 to-emerald-900 px-8 py-16 text-center sm:px-16"
         >
           <h2 className="text-3xl font-medium text-white sm:text-4xl">
             Found something you like?

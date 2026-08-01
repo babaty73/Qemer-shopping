@@ -1,11 +1,4 @@
-# Dependencies
-**/node_modules/
-
-# Environment variables
-**/.env
-
-# Logs
+node_modules
+.env
 *.log
-
-# OS files
 .DS_Store

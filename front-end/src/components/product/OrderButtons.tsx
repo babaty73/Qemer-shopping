@@ -16,7 +16,7 @@ interface OrderButtonsProps {
 export function OrderButtons({ product, variantLabel }: OrderButtonsProps) {
   if (!product.inStock) {
     return (
-      <div className="rounded-2xl border border-dashed border-neutral-200 px-5 py-4 text-sm text-neutral-500">
+      <div className="rounded-2xl border border-dashed border-border-strong bg-surface-muted px-5 py-4 text-sm text-neutral-500">
         Currently out of stock — check back soon, or message us to ask about restock timing.
       </div>
     );

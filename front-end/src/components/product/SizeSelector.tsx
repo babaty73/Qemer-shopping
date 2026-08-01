@@ -20,8 +20,8 @@ export function SizeSelector({ sizes, selected, onSelect }: SizeSelectorProps) {
             className={cn(
               "flex h-10 min-w-10 items-center justify-center rounded-full border-2 px-4 text-sm font-medium transition-colors",
               active
-                ? "border-emerald-500 text-emerald-700"
-                : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+                ? "border-primary text-primary"
+                : "border-border text-neutral-600 hover:border-border-strong"
             )}
           >
             {size}

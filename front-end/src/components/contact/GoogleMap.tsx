@@ -7,7 +7,7 @@ export function GoogleMap({ address }: GoogleMapProps) {
   const src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-100">
+    <div className="overflow-hidden rounded-2xl border border-border shadow-xs">
       <iframe
         title={`Map showing ${address}`}
         src={src}

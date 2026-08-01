@@ -20,7 +20,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-neutral-900/50"
+            className="absolute inset-0 bg-neutral-900/45"
             aria-hidden
           />
           <motion.div
@@ -31,7 +31,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             role="dialog"
             aria-modal="true"
             aria-label={title}
-            className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-lifted"
+            className="surface-card relative w-full max-w-sm p-6 shadow-lifted"
           >
             <div className="flex items-center justify-between">
               <p className="text-base font-medium text-neutral-900">{title}</p>
@@ -39,7 +39,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="rounded-full p-1 text-neutral-400 hover:bg-neutral-100"
+                className="rounded-full p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>

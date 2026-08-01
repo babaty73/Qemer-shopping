@@ -49,7 +49,7 @@ export function ContactForm() {
     <form
       noValidate
       onSubmit={(e) => e.preventDefault()}
-      className="rounded-2xl border border-neutral-100 p-6 shadow-soft sm:p-8"
+      className="surface-card p-6 sm:p-8"
     >
       <Field label="Name" error={errors.name}>
         <input
@@ -102,10 +102,7 @@ export function ContactForm() {
 }
 
 function inputClass(hasError: boolean) {
-  return cn(
-    "w-full rounded-xl border bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-emerald-500",
-    hasError ? "border-red-300" : "border-neutral-200"
-  );
+  return cn("field-input", hasError && "field-input-error");
 }
 
 function Field({
@@ -121,9 +118,9 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium text-neutral-900">{label}</label>
+      <label className="field-label">{label}</label>
       {children}
-      {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
     </div>
   );
 }

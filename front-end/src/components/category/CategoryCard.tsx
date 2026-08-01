@@ -19,7 +19,7 @@ export function CategoryCard({ name, slug, image, index = 0 }: CategoryCardProps
     >
       <Link
         to={`/shop?category=${slug}`}
-        className="group relative block aspect-square overflow-hidden rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        className="group relative block aspect-square overflow-hidden rounded-2xl border border-border shadow-xs outline-none transition-shadow duration-300 hover:shadow-card focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <img
           src={image}
@@ -27,7 +27,7 @@ export function CategoryCard({ name, slug, image, index = 0 }: CategoryCardProps
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/0 to-neutral-900/0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/70 via-neutral-900/10 to-transparent" />
         <span className="absolute bottom-4 left-4 text-lg font-medium text-white">{name}</span>
       </Link>
     </motion.div>

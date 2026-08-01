@@ -43,8 +43,8 @@ function FilterPill({
       className={cn(
         "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
         active
-          ? "border-emerald-500 bg-emerald-500 text-white"
-          : "border-neutral-200 text-neutral-600 hover:border-emerald-500 hover:text-emerald-600"
+          ? "border-primary bg-primary text-white shadow-soft"
+          : "border-border bg-surface text-neutral-600 hover:border-primary/40 hover:text-primary"
       )}
     >
       {children}

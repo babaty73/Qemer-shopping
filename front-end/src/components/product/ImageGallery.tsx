@@ -13,7 +13,7 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
 
   return (
     <div>
-      <div className="relative aspect-square overflow-hidden rounded-3xl bg-neutral-100">
+      <div className="relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface-muted shadow-xs">
         <AnimatePresence mode="wait">
           <motion.img
             key={images[active]}
@@ -40,7 +40,7 @@ export function ImageGallery({ images, name }: ImageGalleryProps) {
               onClick={() => setActive(index)}
               className={cn(
                 "h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 transition-colors",
-                index === active ? "border-emerald-500" : "border-transparent hover:border-neutral-200"
+                index === active ? "border-primary" : "border-transparent hover:border-border-strong"
               )}
             >
               <img src={image} alt="" className="h-full w-full object-cover" />

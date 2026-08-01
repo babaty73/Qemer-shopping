@@ -9,14 +9,14 @@ import { buttonVariants } from "@/components/ui/Button";
  */
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-neutral-50">
+    <section className="relative overflow-hidden bg-gradient-to-b from-primary-light/70 via-neutral-50 to-neutral-50">
       <div className="container grid grid-cols-1 items-center gap-12 py-20 sm:py-28 lg:grid-cols-2 lg:py-32">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <span className="price-tag inline-block rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+          <span className="price-tag inline-block rounded-full border border-primary/20 bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-xs">
             Addis Ababa · New Stock Weekly
           </span>
 
@@ -48,16 +48,16 @@ export function Hero() {
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
           className="relative"
         >
-          <div className="aspect-[4/5] overflow-hidden rounded-3xl shadow-lifted">
+          <div className="aspect-[4/5] overflow-hidden rounded-3xl border border-border shadow-lifted">
             <img
               src="https://picsum.photos/seed/kemer-hero/900/1100"
               alt="A curated selection of Kemer Market products"
               className="h-full w-full object-cover"
             />
           </div>
-          <div className="price-tag absolute -bottom-6 -left-6 hidden rounded-2xl bg-white px-5 py-4 shadow-lifted sm:block">
+          <div className="price-tag absolute -bottom-6 -left-6 hidden rounded-2xl border border-border bg-surface px-5 py-4 shadow-lifted sm:block">
             <p className="text-xs uppercase tracking-wide text-neutral-400">From</p>
-            <p className="text-xl font-semibold text-emerald-600">ETB 620</p>
+            <p className="text-xl font-semibold text-primary">ETB 620</p>
           </div>
         </motion.div>
       </div>

@@ -33,7 +33,7 @@ export function SectionTitle({
       )}
     >
       {eyebrow && (
-        <span className="price-tag mb-3 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <span className="price-tag mb-3 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-primary">
           {eyebrow}
         </span>
       )}

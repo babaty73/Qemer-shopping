@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/mockData";
@@ -30,8 +31,7 @@ const EMPTY_FORM: FormState = {
   inStock: true,
 };
 
-const inputClass =
-  "w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm text-neutral-900 focus:border-emerald-500";
+const inputClass = "field-input";
 
 function splitList(value: string): string[] {
   return value
@@ -121,7 +121,20 @@ export default function ProductForm() {
   }
 
   if (loading) {
-    return <div className="py-24 text-center text-sm text-neutral-400">Loading…</div>;
+    return (
+      <div className="max-w-2xl">
+        <Skeleton className="h-8 w-40" />
+        <div className="mt-8 space-y-6">
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton className="h-11 w-full" />
+            <Skeleton className="h-11 w-full" />
+          </div>
+          <Skeleton className="h-24 w-24" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -207,7 +220,7 @@ export default function ProductForm() {
               type="checkbox"
               checked={form.featured}
               onChange={(e) => updateField("featured", e.target.checked)}
-              className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary/30"
             />
             Featured
           </label>
@@ -216,7 +229,7 @@ export default function ProductForm() {
               type="checkbox"
               checked={form.inStock}
               onChange={(e) => updateField("inStock", e.target.checked)}
-              className="h-4 w-4 rounded border-neutral-300 text-emerald-600 focus:ring-emerald-500"
+              className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary/30"
             />
             In Stock
           </label>
@@ -248,7 +261,7 @@ export default function ProductForm() {
 function FormField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium text-neutral-900">{label}</label>
+      <label className="field-label">{label}</label>
       {children}
     </div>
   );

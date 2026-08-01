@@ -50,7 +50,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
         {images.map((image, index) => (
           <div
             key={image.url}
-            className="relative h-24 w-24 overflow-hidden rounded-xl border border-neutral-200"
+            className="relative h-24 w-24 overflow-hidden rounded-xl border border-border shadow-xs"
           >
             <img src={image.url} alt="" className="h-full w-full object-cover" />
             <button
@@ -69,7 +69,7 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
           className={cn(
-            "flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-neutral-200 text-neutral-400 transition-colors hover:border-emerald-400 hover:text-emerald-600",
+            "flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border-strong bg-surface-muted text-neutral-400 transition-colors hover:border-primary/50 hover:bg-primary-light hover:text-primary",
             uploading && "pointer-events-none opacity-60"
           )}
         >

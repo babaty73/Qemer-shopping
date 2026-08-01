@@ -8,6 +8,7 @@ import { OrderButtons } from "@/components/product/OrderButtons";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Badge } from "@/components/ui/Badge";
+import { ProductDetailsSkeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
 import { getProductBySlug, getProducts } from "@/services/products";
 import { cn, formatPrice } from "@/lib/utils";
@@ -57,7 +58,7 @@ export default function ProductDetails() {
   }, [slug]);
 
   if (product === undefined) {
-    return <div className="container py-32 text-center text-sm text-neutral-400">Loading…</div>;
+    return <ProductDetailsSkeleton />;
   }
 
   if (product === null) {
@@ -76,7 +77,7 @@ export default function ProductDetails() {
     <div className="container py-16">
       <Link
         to="/shop"
-        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-emerald-600"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-primary"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden /> Back to Shop
       </Link>
@@ -89,7 +90,7 @@ export default function ProductDetails() {
             {product.category}
           </p>
           <h1 className="mt-2 text-3xl font-medium text-neutral-900 sm:text-4xl">{product.name}</h1>
-          <p className="price-tag mt-4 text-2xl font-semibold text-emerald-600">
+          <p className="price-tag mt-4 text-2xl font-semibold text-primary">
             {formatPrice(product.price)}
           </p>
 

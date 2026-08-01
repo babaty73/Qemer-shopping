@@ -11,7 +11,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-neutral-100 bg-neutral-50">
+    <footer className="border-t border-border bg-neutral-50">
       <div className="container grid grid-cols-1 gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-display text-xl font-semibold text-neutral-900">{SITE_NAME}</p>
@@ -28,7 +28,7 @@ export function Footer() {
               <li key={link.href}>
                 <Link
                   to={link.href}
-                  className="text-sm text-neutral-500 transition-colors hover:text-emerald-600"
+                  className="text-sm text-neutral-500 transition-colors hover:text-primary"
                 >
                   {link.label}
                 </Link>
@@ -45,7 +45,7 @@ export function Footer() {
                 href={`https://t.me/${CONTACT_INFO.telegramHandle}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-emerald-600"
+                className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-primary"
               >
                 <Send className="h-4 w-4" aria-hidden /> Telegram
               </a>
@@ -55,7 +55,7 @@ export function Footer() {
                 href={`https://wa.me/${CONTACT_INFO.whatsappNumber}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-emerald-600"
+                className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-primary"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
               </a>
@@ -79,7 +79,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-neutral-200 py-6">
+      <div className="border-t border-border py-6">
         <p className="container text-center text-xs text-neutral-400">
           © {year} {SITE_NAME}. All rights reserved.
         </p>

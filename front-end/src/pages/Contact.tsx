@@ -39,9 +39,9 @@ export default function Contact() {
                   href={channel.href}
                   target={channel.href.startsWith("http") ? "_blank" : undefined}
                   rel={channel.href.startsWith("http") ? "noreferrer" : undefined}
-                  className="flex items-center gap-3 rounded-xl border border-neutral-100 p-4 text-sm text-neutral-700 shadow-soft transition-colors hover:border-emerald-200 hover:text-emerald-700"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-neutral-700 shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:text-primary hover:shadow-soft"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
                     <channel.icon className="h-5 w-5" aria-hidden />
                   </span>
                   <span>
@@ -51,8 +51,8 @@ export default function Contact() {
                 </a>
               </li>
             ))}
-            <li className="flex items-center gap-3 rounded-xl border border-neutral-100 p-4 text-sm text-neutral-700 shadow-soft">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <li className="flex items-center gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-neutral-700 shadow-xs">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
                 <MapPin className="h-5 w-5" aria-hidden />
               </span>
               <span>

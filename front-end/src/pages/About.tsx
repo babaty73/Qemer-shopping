@@ -5,14 +5,14 @@ import { CallToAction } from "@/components/home/CallToAction";
 export default function About() {
   return (
     <div>
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-gradient-to-b from-primary-light/60 via-neutral-50 to-neutral-50 py-20 sm:py-28">
         <div className="container max-w-2xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            <span className="price-tag inline-block rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+            <span className="price-tag inline-block rounded-full border border-primary/20 bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary shadow-xs">
               Our Story
             </span>
             <h1 className="mt-6 text-4xl font-medium leading-tight text-neutral-900 sm:text-5xl">

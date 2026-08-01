@@ -11,10 +11,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        featured: "border-emerald-200 bg-emerald-50 text-emerald-700",
-        sale: "border-amber-200 bg-amber-50 text-amber-700",
-        outOfStock: "border-neutral-200 bg-neutral-100 text-neutral-500",
-        neutral: "border-neutral-200 bg-white text-neutral-700",
+        featured: "border-primary/20 bg-primary-light text-primary",
+        sale: "border-secondary/25 bg-secondary-light text-secondary",
+        outOfStock: "border-border bg-neutral-100 text-neutral-500",
+        neutral: "border-border bg-surface text-neutral-700",
       },
     },
     defaultVariants: {

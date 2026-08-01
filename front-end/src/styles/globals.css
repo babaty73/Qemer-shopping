@@ -9,6 +9,7 @@
 
   body {
     font-family: theme("fontFamily.sans");
+    background-color: theme("colors.background.DEFAULT");
   }
 
   h1, h2, h3, h4 {
@@ -18,19 +19,54 @@
 
   /* Visible, on-brand keyboard focus ring for every interactive element */
   :focus-visible {
-    outline: 2px solid theme("colors.emerald.500");
+    outline: 2px solid theme("colors.primary.DEFAULT");
     outline-offset: 2px;
     border-radius: 4px;
   }
 
   ::selection {
-    background-color: theme("colors.emerald.100");
+    background-color: theme("colors.primary.light");
     color: theme("colors.emerald.900");
+  }
+}
+
+@layer components {
+  /* Base card surface — the one visual language every card/container in the
+     app should share: a white surface lifted off the warm-neutral page
+     background with a hairline border plus a soft shadow, rather than
+     shadow alone. */
+  .surface-card {
+    @apply rounded-2xl border border-border bg-surface shadow-soft;
+  }
+
+  /* Same surface, with the restrained hover-elevation used on interactive
+     cards (product cards, category tiles). */
+  .surface-card-interactive {
+    @apply surface-card transition-shadow duration-300 hover:shadow-card;
+  }
+
+  /* Shared text-input treatment — used by every form across the storefront
+     and admin dashboard so inputs never look different page to page. */
+  .field-input {
+    @apply w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10;
+  }
+
+  .field-input-error {
+    @apply border-error/60 focus:border-error focus:ring-error/10;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-neutral-800;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-xs font-medium text-error;
   }
 }
 
 @layer utilities {
   .skeleton {
+    background-color: theme("colors.neutral.100");
     background-image: linear-gradient(
       90deg,
       theme("colors.neutral.100") 0px,

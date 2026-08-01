@@ -24,7 +24,7 @@ export function HowItWorks() {
               transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
               className="text-center"
             >
-              <div className="price-tag mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-base font-semibold text-white">
+              <div className="price-tag mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-base font-semibold text-white shadow-soft">
                 {index + 1}
               </div>
               <p className="mt-4 text-base font-medium text-neutral-900">{step.title}</p>

@@ -43,7 +43,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.2 }}
               className={`pointer-events-auto flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium shadow-lifted ${
-                toast.variant === "success" ? "bg-neutral-900 text-white" : "bg-red-600 text-white"
+                toast.variant === "success" ? "bg-neutral-900 text-white" : "bg-error text-white"
               }`}
             >
               {toast.variant === "success" ? (

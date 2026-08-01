@@ -18,7 +18,7 @@ export function SortSelect({ value, onChange }: SortSelectProps) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as NonNullable<ProductFilters["sort"]>)}
-        className="h-11 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-900 focus:border-emerald-500"
+        className="h-11 rounded-full border border-border bg-surface px-4 text-sm text-neutral-900 transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
       >
         {OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>

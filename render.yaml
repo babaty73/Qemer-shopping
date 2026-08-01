@@ -1,33 +1,30 @@
+# Render Blueprint — see https://render.com/docs/blueprint-spec
+# Import this repo in the Render dashboard and it will pick this up
+# automatically, or configure the same settings manually on a Web Service.
 services:
   - type: web
     name: kemer-market-api
     runtime: node
-    rootDir: back-end
+    rootDir: backend
     plan: free
     buildCommand: npm install
     startCommand: npm start
-
     envVars:
       - key: NODE_ENV
         value: production
-
+      - key: PORT
+        value: 5000
       - key: MONGO_URI
         sync: false
-
       - key: CORS_ORIGINS
         sync: false
-
       - key: JWT_SECRET
         generateValue: true
-
       - key: JWT_EXPIRES_IN
         value: 7d
-
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
-
       - key: CLOUDINARY_API_KEY
         sync: false
-
       - key: CLOUDINARY_API_SECRET
         sync: false

@@ -25,7 +25,7 @@ export function ColorSwatches({ colors, selected, onSelect }: ColorSwatchesProps
             className={cn(
               "flex h-10 items-center justify-center rounded-full border-2 transition-colors",
               swatch ? "w-10 p-0.5" : "px-4 text-xs font-medium",
-              active ? "border-emerald-500" : "border-neutral-200 hover:border-neutral-300"
+              active ? "border-primary" : "border-border hover:border-border-strong"
             )}
           >
             {swatch ? (

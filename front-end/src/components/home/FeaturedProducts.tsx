@@ -28,7 +28,7 @@ export function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="bg-neutral-50 py-20 sm:py-24">
+    <section className="border-y border-border bg-surface py-20 sm:py-24">
       <div className="container">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionTitle
@@ -38,7 +38,7 @@ export function FeaturedProducts() {
           />
           <Link
             to="/shop"
-            className="flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700"
+            className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover"
           >
             View all products <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>

@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Routes, Route, Outlet } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
@@ -28,7 +29,10 @@ function StorefrontLayout() {
 
 function PageFallback() {
   return (
-    <div className="flex min-h-[60vh] items-center justify-center text-sm text-neutral-400">Loading…</div>
+    <div className="flex min-h-[60vh] items-center justify-center gap-2 text-sm text-neutral-400">
+      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+      Loading…
+    </div>
   );
 }
 

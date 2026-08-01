@@ -35,9 +35,9 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-neutral-100 bg-white p-8 shadow-soft">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary-light/50 via-background to-background px-4">
+      <div className="surface-card w-full max-w-sm p-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-primary">
           <Lock className="h-5 w-5" aria-hidden />
         </div>
         <h1 className="mt-4 text-xl font-medium text-neutral-900">Admin sign in</h1>
@@ -45,7 +45,7 @@ export default function AdminLogin() {
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">
+            <label className="field-label">
               Username or email
             </label>
             <input
@@ -54,22 +54,22 @@ export default function AdminLogin() {
               onChange={(e) => setIdentifier(e.target.value)}
               required
               autoComplete="username"
-              className="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm focus:border-emerald-500"
+              className="field-input"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-neutral-900">Password</label>
+            <label className="field-label">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full rounded-xl border border-neutral-200 px-4 py-2.5 text-sm focus:border-emerald-500"
+              className="field-input"
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="field-error">{error}</p>}
 
           <button
             type="submit"

@@ -39,9 +39,9 @@ export function WhyChooseUs() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.45, delay: index * 0.08, ease: "easeOut" }}
-              className="rounded-2xl border border-neutral-100 p-6 text-center shadow-soft"
+              className="surface-card-interactive p-6 text-center"
             >
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-primary">
                 <reason.icon className="h-6 w-6" aria-hidden />
               </div>
               <p className="mt-4 text-base font-medium text-neutral-900">{reason.title}</p>

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { Product } from "@/types";
 import { Badge } from "@/components/ui/Badge";
 import { formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -23,9 +24,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     >
       <Link
         to={`/shop/${product.slug}`}
-        className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+        className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-neutral-100">
+        <div
+          className={cn(
+            "relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-surface-muted shadow-xs transition-shadow duration-300 group-hover:shadow-card",
+            !product.inStock && "opacity-80"
+          )}
+        >
           <img
             src={product.images[0]}
             alt={product.name}
@@ -33,8 +39,16 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
           <div className="absolute left-3 top-3 flex flex-col gap-2">
-            {product.featured && <Badge variant="featured">Featured</Badge>}
-            {!product.inStock && <Badge variant="outOfStock">Out of Stock</Badge>}
+            {product.featured && (
+              <Badge variant="featured" className="shadow-xs">
+                Featured
+              </Badge>
+            )}
+            {!product.inStock && (
+              <Badge variant="outOfStock" className="shadow-xs">
+                Out of Stock
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -43,7 +57,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
             <p className="text-sm font-medium text-neutral-900">{product.name}</p>
             <p className="mt-1 text-xs text-neutral-400">{product.category}</p>
           </div>
-          <p className="price-tag shrink-0 text-sm font-semibold text-neutral-900">
+          <p className="price-tag shrink-0 text-sm font-semibold text-primary">
             {formatPrice(product.price)}
           </p>
         </div>

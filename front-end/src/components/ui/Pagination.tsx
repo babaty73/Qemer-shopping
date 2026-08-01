@@ -71,7 +71,7 @@ function PageButton({
       onClick={onClick}
       className={cn(
         "flex h-10 min-w-10 items-center justify-center rounded-full px-2 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-40",
-        active ? "bg-emerald-500 text-white" : "text-neutral-600 hover:bg-neutral-100"
+        active ? "bg-primary text-white shadow-soft" : "text-neutral-600 hover:bg-neutral-100"
       )}
       {...rest}
     >
