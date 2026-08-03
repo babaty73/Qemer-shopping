@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
 import type { Product } from "@/types";
 import { Badge } from "@/components/ui/Badge";
-import { formatPrice } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
+import { cn, formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -12,19 +14,39 @@ interface ProductCardProps {
 
 /**
  * Core catalog card — used by FeaturedProducts on Home and by the Shop grid.
- * The whole card links to the product; order actions live on ProductDetails.
+ * The card body links to the product; the quick-add button sits alongside
+ * it (not nested inside the <Link>, to keep the markup valid) and adds the
+ * default variant — customers who want a specific color/size still go
+ * through Product Details.
  */
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const { addItem } = useCart();
+  const { showToast } = useToast();
+
+  function handleQuickAdd() {
+    addItem({
+      productId: product._id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      color: product.colors[0],
+      size: product.sizes[0],
+    });
+    showToast(`Added ${product.name} to cart`);
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 4) * 0.06, ease: "easeOut" }}
+      className="group relative"
     >
       <Link
         to={`/shop/${product.slug}`}
-        className="group block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
         <div
           className={cn(
@@ -62,6 +84,17 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </p>
         </div>
       </Link>
+
+      {product.inStock && (
+        <button
+          type="button"
+          onClick={handleQuickAdd}
+          aria-label={`Add ${product.name} to cart`}
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface text-neutral-700 opacity-0 shadow-soft transition-all duration-200 hover:bg-primary hover:text-white focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 group-hover:opacity-100"
+        >
+          <ShoppingBag className="h-4 w-4" aria-hidden />
+        </button>
+      )}
     </motion.div>
   );
 }

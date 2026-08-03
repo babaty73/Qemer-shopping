@@ -36,6 +36,7 @@ export interface ProductInput {
   sizes: string[];
   featured: boolean;
   inStock: boolean;
+  stock: number;
 }
 
 export function createProduct(input: ProductInput): Promise<Product> {

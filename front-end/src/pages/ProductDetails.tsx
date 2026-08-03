@@ -5,6 +5,7 @@ import { ImageGallery } from "@/components/product/ImageGallery";
 import { ColorSwatches } from "@/components/product/ColorSwatches";
 import { SizeSelector } from "@/components/product/SizeSelector";
 import { OrderButtons } from "@/components/product/OrderButtons";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Badge } from "@/components/ui/Badge";
@@ -122,7 +123,20 @@ export default function ProductDetails() {
             </div>
           )}
 
-          <div className="mt-10">
+          {product.inStock && (
+            <div className="mt-10">
+              <AddToCartButton product={product} selectedColor={selectedColor} selectedSize={selectedSize} />
+            </div>
+          )}
+
+          <div className={product.inStock ? "mt-6" : "mt-10"}>
+            {product.inStock && (
+              <p className="mb-3 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-neutral-400">
+                <span className="h-px flex-1 bg-border" />
+                or order instantly
+                <span className="h-px flex-1 bg-border" />
+              </p>
+            )}
             <OrderButtons product={product} variantLabel={buildVariantLabel(selectedColor, selectedSize)} />
           </div>
         </div>

@@ -14,6 +14,7 @@ interface FormState {
   description: string;
   category: string;
   price: string;
+  stock: string;
   colors: string;
   sizes: string;
   featured: boolean;
@@ -25,6 +26,7 @@ const EMPTY_FORM: FormState = {
   description: "",
   category: CATEGORIES[0].name,
   price: "",
+  stock: "0",
   colors: "",
   sizes: "",
   featured: false,
@@ -67,6 +69,7 @@ export default function ProductForm() {
           description: product.description,
           category: product.category,
           price: String(product.price),
+          stock: String(product.stock),
           colors: product.colors.join(", "),
           sizes: product.sizes.join(", "),
           featured: product.featured,
@@ -98,6 +101,7 @@ export default function ProductForm() {
         description: form.description,
         category: form.category,
         price: Number(form.price),
+        stock: Math.max(0, Math.floor(Number(form.stock) || 0)),
         images: images.map((img) => img.url),
         colors: splitList(form.colors),
         sizes: splitList(form.sizes),
@@ -162,7 +166,7 @@ export default function ProductForm() {
           />
         </FormField>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <FormField label="Category">
             <select
               value={form.category}
@@ -184,6 +188,18 @@ export default function ProductForm() {
               min={0}
               value={form.price}
               onChange={(e) => updateField("price", e.target.value)}
+              className={inputClass}
+            />
+          </FormField>
+
+          <FormField label="Stock Quantity">
+            <input
+              type="number"
+              required
+              min={0}
+              step={1}
+              value={form.stock}
+              onChange={(e) => updateField("stock", e.target.value)}
               className={inputClass}
             />
           </FormField>

@@ -14,6 +14,7 @@ export interface Product {
   sizes: string[];
   featured: boolean;
   inStock: boolean;
+  stock: number;
   createdAt: string;
   updatedAt: string;
 }

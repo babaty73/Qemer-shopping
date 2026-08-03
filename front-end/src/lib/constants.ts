@@ -19,3 +19,15 @@ export const CONTACT_INFO = {
   email: "hello@kemermarket.com",
   addressDisplay: "Bole, Addis Ababa, Ethiopia",
 } as const;
+
+/**
+ * Manual payment details shown on the Cart page — customers transfer here,
+ * then attach a screenshot at checkout for the admin to verify. No live
+ * payment gateway is involved.
+ */
+export const PAYMENT_INFO = {
+  bankName: "Commercial Bank of Ethiopia",
+  accountName: "Kemer Market PLC",
+  accountNumber: "1000123456789",
+  telebirrNumber: "+251 90 000 0000",
+} as const;

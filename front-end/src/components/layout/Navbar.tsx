@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { useCart } from "@/context/CartContext";
 
 /**
  * Sticky, scroll-aware navbar: transparent over the hero, a solid surface
@@ -13,6 +14,7 @@ import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { itemCount, openCart } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -26,17 +28,6 @@ export function Navbar() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen]);
-
-  useEffect(() => {
-    const onResize = () => {
-      if (window.innerWidth >= 768 && mobileOpen) {
-        setMobileOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
   }, [mobileOpen]);
 
   return (
@@ -75,6 +66,20 @@ export function Navbar() {
             className="hidden h-10 w-10 items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-primary-light hover:text-primary sm:flex"
           >
             <Search className="h-5 w-5" aria-hidden />
+          </button>
+
+          <button
+            type="button"
+            onClick={openCart}
+            aria-label={`Open cart${itemCount > 0 ? `, ${itemCount} items` : ""}`}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-primary-light hover:text-primary"
+          >
+            <ShoppingBag className="h-5 w-5" aria-hidden />
+            {itemCount > 0 && (
+              <span className="price-tag absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-white">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
           </button>
 
           <button

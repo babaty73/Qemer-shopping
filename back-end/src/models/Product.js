@@ -59,6 +59,15 @@ const productSchema = new Schema(
       default: true,
       index: true,
     },
+    // Numeric quantity, separate from the manual `inStock` toggle above.
+    // Order delivery decrements this automatically (see orderController's
+    // updateOrderStatus); the admin's manual "Toggle Stock Status" action
+    // still overrides `inStock` directly and is untouched by this field.
+    stock: {
+      type: Number,
+      default: 0,
+      min: [0, "Stock cannot be negative"],
+    },
   },
   { timestamps: true }
 );
