@@ -22,7 +22,11 @@ if (env.email.host && env.email.user && env.email.pass) {
     secure: env.email.port === 465,
     auth: { user: env.email.user, pass: env.email.pass },
   });
-} else {
+
+  transporter.verify()
+    .then(() => console.log("SMTP connection successful"))
+    .catch((err) => console.error("SMTP connection failed:", err));
+}else {
   // eslint-disable-next-line no-console
   console.warn("SMTP not configured (SMTP_HOST/SMTP_USER/SMTP_PASS) — emails will be logged, not sent.");
 }
