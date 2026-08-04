@@ -8,6 +8,13 @@ import { env } from "./env.js";
  */
 let transporter = null;
 
+console.log("SMTP DEBUG:", {
+  host: env.email.host,
+  user: env.email.user,
+  pass: env.email.pass ? "exists" : "missing",
+  from: env.email.from,
+});
+
 if (env.email.host && env.email.user && env.email.pass) {
   transporter = nodemailer.createTransport({
     host: env.email.host,
