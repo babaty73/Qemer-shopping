@@ -66,7 +66,7 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-medium text-neutral-900">Products</h1>
           <p className="mt-1 text-sm text-neutral-500">{products.length} total</p>
@@ -84,13 +84,14 @@ export default function AdminProducts() {
                 <th className="px-5 py-3 font-medium">Product</th>
                 <th className="px-5 py-3 font-medium">Category</th>
                 <th className="px-5 py-3 font-medium">Price</th>
+                <th className="px-5 py-3 font-medium">Stock</th>
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 5 }).map((_, i) => (
-                <TableRowSkeleton key={i} columns={5} />
+                <TableRowSkeleton key={i} columns={6} />
               ))}
             </tbody>
           </table>
@@ -105,6 +106,7 @@ export default function AdminProducts() {
                 <th className="px-5 py-3 font-medium">Product</th>
                 <th className="px-5 py-3 font-medium">Category</th>
                 <th className="px-5 py-3 font-medium">Price</th>
+                <th className="px-5 py-3 font-medium">Stock</th>
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
@@ -124,6 +126,7 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-5 py-3 text-neutral-500">{product.category}</td>
                   <td className="price-tag px-5 py-3 text-neutral-900">{formatPrice(product.price)}</td>
+                  <td className="px-5 py-3 text-neutral-500">{product.stock}</td>
                   <td className="px-5 py-3">
                     <div className="flex flex-wrap gap-1.5">
                       {product.featured && <Badge variant="featured">Featured</Badge>}

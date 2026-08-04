@@ -1,6 +1,8 @@
 import { cloudinary } from "../config/cloudinary.js";
 import { Order, ORDER_STATUSES } from "../models/Order.js";
 import { Product } from "../models/Product.js";
+import { sendEmail } from "../utils/sendEmail.js";
+import { buildPaymentAcceptedEmail, buildPaymentRejectedEmail } from "../emails/orderEmails.js";
 
 /**
  * POST /api/orders — public. Multipart: text fields + `items` (JSON string
@@ -113,7 +115,9 @@ export async function getOrderById(req, res, next) {
  * deleted, so it stays visible (as "Out of Stock") for browsing and custom
  * requests. Guarded by `wasAlreadyDelivered` so re-saving an already-
  * delivered order (e.g. re-submitting the same status) never double-decrements.
- * Email notifications are layered on top of this in the next milestone.
+ * Transitioning into "Accepted" or "Payment Rejected" emails the customer —
+ * guarded the same way, against `previousStatus`, so re-saving the same
+ * status never re-sends the email.
  */
 export async function updateOrderStatus(req, res, next) {
   try {
@@ -125,7 +129,8 @@ export async function updateOrderStatus(req, res, next) {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    const wasAlreadyDelivered = order.status === "Delivered";
+    const previousStatus = order.status;
+    const wasAlreadyDelivered = previousStatus === "Delivered";
     order.status = status;
     await order.save();
 
@@ -140,6 +145,16 @@ export async function updateOrderStatus(req, res, next) {
           await product.save();
         })
       );
+    }
+
+    if (status !== previousStatus) {
+      if (status === "Accepted") {
+        const { subject, html } = buildPaymentAcceptedEmail(order);
+        await sendEmail({ to: order.customer.email, subject, html });
+      } else if (status === "Payment Rejected") {
+        const { subject, html } = buildPaymentRejectedEmail(order);
+        await sendEmail({ to: order.customer.email, subject, html });
+      }
     }
 
     res.json(order);

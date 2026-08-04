@@ -83,7 +83,7 @@ export default function Checkout() {
       setConfirmedOrder({ id: result._id, total: result.totalPrice });
       clearCart();
     } catch (err) {
-      setSubmitError(err instanceof Error ? "Error" : "Something went wrong placing your order.");
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong placing your order.");
     } finally {
       setSubmitting(false);
     }
@@ -206,7 +206,7 @@ export default function Checkout() {
             {submitting ? "Placing Order…" : "Place Order"}
           </button>
         </form>
-        <PaymentInfoCard />
+
         <div className="space-y-6">
           <div className="surface-card p-6">
             <p className="text-base font-medium text-neutral-900">Order Summary</p>
@@ -228,7 +228,7 @@ export default function Checkout() {
             </div>
           </div>
 
-          
+          <PaymentInfoCard />
         </div>
       </div>
     </div>
