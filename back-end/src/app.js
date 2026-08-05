@@ -9,6 +9,7 @@ import productRouter from "./routes/productRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import uploadRouter from "./routes/uploadRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import productRequestRouter from "./routes/productRequestRoutes.js";
 
 export const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api/products", productRouter);
 app.use("/api/admin", authRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/product-requests", productRequestRouter);
 
 app.use(notFound);
 app.use(errorHandler);

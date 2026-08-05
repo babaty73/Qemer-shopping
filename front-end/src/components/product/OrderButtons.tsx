@@ -1,6 +1,7 @@
 import { Send, MessageCircle } from "lucide-react";
 import type { Product } from "@/types";
 import { buttonVariants } from "@/components/ui/Button";
+import { RequestProductButton } from "@/components/product-request/RequestProductButton";
 import { getTelegramOrderLink, getWhatsAppOrderLink } from "@/lib/utils";
 
 interface OrderButtonsProps {
@@ -16,8 +17,18 @@ interface OrderButtonsProps {
 export function OrderButtons({ product, variantLabel }: OrderButtonsProps) {
   if (!product.inStock) {
     return (
-      <div className="rounded-2xl border border-dashed border-border-strong bg-surface-muted px-5 py-4 text-sm text-neutral-500">
-        Currently out of stock — check back soon, or message us to ask about restock timing.
+      <div className="rounded-2xl border border-dashed border-border-strong bg-surface-muted px-5 py-4">
+        <p className="text-sm text-neutral-500">
+          Currently out of stock — check back soon, or let us know if you need it in a different
+          color/size and we'll try to source it.
+        </p>
+        <RequestProductButton
+          productName={product.name}
+          label="Request This Product"
+          variant="outline"
+          size="sm"
+          className="mt-4"
+        />
       </div>
     );
   }

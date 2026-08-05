@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { MessageCircle, Send, Phone, Mail, MapPin } from "lucide-react";
+import { MessageCircle, Send, Phone, Mail, MapPin, Sparkles } from "lucide-react";
 import { CONTACT_INFO, NAV_LINKS, SITE_NAME } from "@/lib/constants";
+import { useProductRequest } from "@/context/ProductRequestContext";
 
 /**
  * Site-wide footer: business identity, quick nav, and direct order channels.
@@ -9,6 +10,7 @@ import { CONTACT_INFO, NAV_LINKS, SITE_NAME } from "@/lib/constants";
  */
 export function Footer() {
   const year = new Date().getFullYear();
+  const { openRequestForm } = useProductRequest();
 
   return (
     <footer className="border-t border-border bg-neutral-50">
@@ -34,6 +36,15 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={() => openRequestForm()}
+                className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-primary"
+              >
+                <Sparkles className="h-4 w-4" aria-hidden /> Request a Product
+              </button>
+            </li>
           </ul>
         </div>
 

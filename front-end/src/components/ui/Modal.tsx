@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** "sm" (default) for confirmations, "lg" for multi-field forms. */
+  size?: "sm" | "lg";
 }
 
-/** Centered confirmation dialog — used for destructive admin actions like delete. */
-export function Modal({ open, onClose, title, children }: ModalProps) {
+/** Centered dialog — confirmations (delete) and, at size="lg", multi-field forms (Request a Product). */
+export function Modal({ open, onClose, title, children, size = "sm" }: ModalProps) {
   return (
     <AnimatePresence>
       {open && (
@@ -31,7 +34,10 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             role="dialog"
             aria-modal="true"
             aria-label={title}
-            className="surface-card relative w-full max-w-sm p-6 shadow-lifted"
+            className={cn(
+              "surface-card relative max-h-[90vh] w-full overflow-y-auto p-6 shadow-lifted",
+              size === "lg" ? "max-w-lg" : "max-w-sm"
+            )}
           >
             <div className="flex items-center justify-between">
               <p className="text-base font-medium text-neutral-900">{title}</p>

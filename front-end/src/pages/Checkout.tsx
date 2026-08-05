@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { createOrder } from "@/services/orders";
-import { PaymentScreenshotUpload } from "@/components/checkout/PaymentScreenshotUpload";
+import { ImageFilePicker } from "@/components/ui/ImageFilePicker";
 import { PaymentInfoCard } from "@/components/checkout/PaymentInfoCard";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -187,7 +187,12 @@ export default function Checkout() {
           </Field>
 
           <Field label="Payment Screenshot" error={errors.screenshot}>
-            <PaymentScreenshotUpload preview={screenshotPreview} onChange={handleScreenshotChange} />
+            <ImageFilePicker
+              preview={screenshotPreview}
+              onChange={handleScreenshotChange}
+              label="Click to upload payment screenshot"
+              previewAlt="Payment screenshot preview"
+            />
           </Field>
 
           <Field label="Additional Notes (optional)">

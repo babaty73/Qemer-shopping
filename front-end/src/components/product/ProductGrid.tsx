@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Product } from "@/types";
 import { ProductCard } from "./ProductCard";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
@@ -7,10 +8,11 @@ interface ProductGridProps {
   products: Product[];
   loading?: boolean;
   emptyMessage?: string;
+  emptyAction?: ReactNode;
 }
 
 /** Responsive product grid with built-in loading and empty states. */
-export function ProductGrid({ products, loading, emptyMessage }: ProductGridProps) {
+export function ProductGrid({ products, loading, emptyMessage, emptyAction }: ProductGridProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
@@ -26,6 +28,7 @@ export function ProductGrid({ products, loading, emptyMessage }: ProductGridProp
       <EmptyState
         title="No products found"
         description={emptyMessage ?? "Try a different search term or category."}
+        action={emptyAction}
       />
     );
   }

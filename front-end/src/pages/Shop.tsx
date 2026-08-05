@@ -6,6 +6,7 @@ import { CategoryFilter } from "@/components/shop/CategoryFilter";
 import { SortSelect } from "@/components/shop/SortSelect";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { Pagination } from "@/components/ui/Pagination";
+import { RequestProductButton } from "@/components/product-request/RequestProductButton";
 import { getProducts } from "@/services/products";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useToast } from "@/context/ToastContext";
@@ -111,7 +112,8 @@ export default function Shop() {
         <ProductGrid
           products={products}
           loading={loading}
-          emptyMessage="Try a different search term or category."
+          emptyMessage="Try a different search term or category, or let us know what you're after."
+          emptyAction={<RequestProductButton label="Request This Product" />}
         />
       </div>
 

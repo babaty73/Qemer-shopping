@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, LogOut, Package, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, LogOut, Package, ShoppingCart, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +7,7 @@ const LINKS = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/admin/products", label: "Products", icon: Package, end: false },
   { to: "/admin/orders", label: "Orders", icon: ShoppingCart, end: false },
+  { to: "/admin/requests", label: "Custom Requests", icon: Sparkles, end: false },
 ];
 
 export function Sidebar() {

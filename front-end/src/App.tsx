@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { CartProvider } from "@/context/CartContext";
+import { ProductRequestProvider } from "@/context/ProductRequestContext";
 
 const Home = lazy(() => import("@/pages/Home"));
 const Shop = lazy(() => import("@/pages/Shop"));
@@ -22,6 +23,8 @@ const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
 const ProductForm = lazy(() => import("@/pages/admin/ProductForm"));
 const AdminOrders = lazy(() => import("@/pages/admin/AdminOrders"));
 const OrderDetail = lazy(() => import("@/pages/admin/OrderDetail"));
+const AdminRequests = lazy(() => import("@/pages/admin/AdminRequests"));
+const RequestDetail = lazy(() => import("@/pages/admin/RequestDetail"));
 
 /** The public storefront shell — Navbar/Footer around every non-admin page. */
 function StorefrontLayout() {
@@ -46,33 +49,37 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <CartProvider>
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
-              <Route element={<StorefrontLayout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/shop/:slug" element={<ProductDetails />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-
-              <Route path="/admin/login" element={<AdminLogin />} />
-
-              <Route element={<ProtectedRoute />}>
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="products/new" element={<ProductForm />} />
-                  <Route path="products/:slug/edit" element={<ProductForm />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="orders/:id" element={<OrderDetail />} />
+          <ProductRequestProvider>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                <Route element={<StorefrontLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/shop/:slug" element={<ProductDetails />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
-              </Route>
-            </Routes>
-          </Suspense>
+
+                <Route path="/admin/login" element={<AdminLogin />} />
+
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="products/new" element={<ProductForm />} />
+                    <Route path="products/:slug/edit" element={<ProductForm />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="orders/:id" element={<OrderDetail />} />
+                    <Route path="requests" element={<AdminRequests />} />
+                    <Route path="requests/:id" element={<RequestDetail />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </Suspense>
+          </ProductRequestProvider>
         </CartProvider>
       </ToastProvider>
     </AuthProvider>

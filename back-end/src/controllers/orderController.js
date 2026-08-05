@@ -149,16 +149,9 @@ export async function updateOrderStatus(req, res, next) {
 
     if (status !== previousStatus) {
       if (status === "Accepted") {
-  console.log("Sending accepted payment email to:", order.customer.email);
-
-  const { subject, html } = buildPaymentAcceptedEmail(order);
-
-  await sendEmail({ 
-    to: order.customer.email, 
-    subject, 
-    html 
-  });
-} else if (status === "Payment Rejected") {
+        const { subject, html } = buildPaymentAcceptedEmail(order);
+        await sendEmail({ to: order.customer.email, subject, html });
+      } else if (status === "Payment Rejected") {
         const { subject, html } = buildPaymentRejectedEmail(order);
         await sendEmail({ to: order.customer.email, subject, html });
       }
