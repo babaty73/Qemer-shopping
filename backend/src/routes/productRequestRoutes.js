@@ -7,6 +7,7 @@ import {
   listProductRequests,
   getProductRequestById,
   updateProductRequestStatus,
+  setProductRequestArchived,
 } from "../controllers/productRequestController.js";
 
 const router = Router();
@@ -23,5 +24,6 @@ router.post("/", createRequestLimiter, upload.single("image"), createProductRequ
 router.get("/", authenticate, listProductRequests);
 router.get("/:id", authenticate, getProductRequestById);
 router.patch("/:id/status", authenticate, updateProductRequestStatus);
+router.patch("/:id/archive", authenticate, setProductRequestArchived);
 
 export default router;

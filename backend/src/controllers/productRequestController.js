@@ -1,5 +1,5 @@
 import { cloudinary } from "../config/cloudinary.js";
-import { ProductRequest, REQUEST_STATUSES } from "../models/ProductRequest.js";
+import { ProductRequest, REQUEST_STATUSES, ARCHIVABLE_REQUEST_STATUSES } from "../models/ProductRequest.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { buildRequestApprovedEmail, buildRequestDeclinedEmail } from "../emails/requestEmails.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
@@ -110,6 +110,34 @@ export async function updateProductRequestStatus(req, res, next) {
       }
     }
 
+    res.json(request);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PATCH /api/product-requests/:id/archive — admin only. Body: { archived: boolean }.
+ * Only Approved/Declined requests can be archived; reversible (restore).
+ */
+export async function setProductRequestArchived(req, res, next) {
+  try {
+    const { archived } = req.body;
+    if (typeof archived !== "boolean") {
+      return res.status(400).json({ message: "archived must be true or false" });
+    }
+
+    const request = await ProductRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    if (archived && !ARCHIVABLE_REQUEST_STATUSES.includes(request.status)) {
+      return res
+        .status(400)
+        .json({ message: `Requests with status "${request.status}" can't be archived yet` });
+    }
+
+    request.archived = archived;
+    await request.save();
     res.json(request);
   } catch (err) {
     next(err);

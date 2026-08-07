@@ -58,3 +58,11 @@ export function updateProductRequestStatus(id: string, status: RequestStatus): P
     auth: true,
   });
 }
+
+export function setProductRequestArchived(id: string, archived: boolean): Promise<ProductRequest> {
+  return apiRequest<ProductRequest>(`/product-requests/${id}/archive`, {
+    method: "PATCH",
+    body: JSON.stringify({ archived }),
+    auth: true,
+  });
+}

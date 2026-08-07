@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Ban, CheckCircle2, PackageCheck, PackagePlus, XCircle } from "lucide-react";
-import { getOrderById, updateOrderStatus } from "@/services/orders";
+import {
+  Archive,
+  ArchiveRestore,
+  ArrowLeft,
+  CheckCircle2,
+  PackageCheck,
+  PackagePlus,
+  XCircle,
+} from "lucide-react";
+import { getOrderById, setOrderArchived, updateOrderStatus } from "@/services/orders";
 import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
@@ -9,12 +17,15 @@ import { useToast } from "@/context/ToastContext";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/types";
 
+const ARCHIVABLE_STATUSES: OrderStatus[] = ["Delivered", "Payment Rejected", "Cancelled"];
+
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();
 
   const [order, setOrder] = useState<Order | null | undefined>(undefined);
   const [updating, setUpdating] = useState<OrderStatus | null>(null);
+  const [archiving, setArchiving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -47,6 +58,20 @@ export default function OrderDetail() {
     }
   }
 
+  async function handleArchiveChange(archived: boolean) {
+    if (!order) return;
+    setArchiving(true);
+    try {
+      const updated = await setOrderArchived(order._id, archived);
+      setOrder(updated);
+      showToast(archived ? "Order archived" : "Order restored to active list");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update order", "error");
+    } finally {
+      setArchiving(false);
+    }
+  }
+
   if (order === undefined) {
     return (
       <div className="max-w-3xl">
@@ -71,6 +96,8 @@ export default function OrderDetail() {
     );
   }
 
+  const isTerminal = ARCHIVABLE_STATUSES.includes(order.status);
+
   return (
     <div className="max-w-5xl">
       <Link
@@ -89,7 +116,14 @@ export default function OrderDetail() {
             Placed {new Date(order.createdAt).toLocaleString()}
           </p>
         </div>
-        <OrderStatusBadge status={order.status} />
+        <div className="flex items-center gap-2">
+          {order.archived && (
+            <span className="rounded-full border border-border bg-neutral-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Archived
+            </span>
+          )}
+          <OrderStatusBadge status={order.status} />
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -202,13 +236,28 @@ export default function OrderDetail() {
                 />
               )}
 
-              {(order.status === "Delivered" ||
-                order.status === "Payment Rejected" ||
-                order.status === "Cancelled") && (
-                <p className="flex items-center gap-2 rounded-xl bg-neutral-50 px-4 py-3 text-sm text-neutral-500">
-                  <Ban className="h-4 w-4 shrink-0" aria-hidden />
-                  This order is in a final state — no further actions available.
-                </p>
+              {isTerminal && !order.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(true)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <Archive className="h-4 w-4" aria-hidden />
+                  {archiving ? "Archiving…" : "Archive Order"}
+                </button>
+              )}
+
+              {order.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(false)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <ArchiveRestore className="h-4 w-4" aria-hidden />
+                  {archiving ? "Restoring…" : "Restore from Archive"}
+                </button>
               )}
             </div>
           </div>

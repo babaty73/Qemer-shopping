@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getOrders } from "@/services/orders";
 import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
+import { ArchiveTabs } from "@/components/admin/ArchiveTabs";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/context/ToastContext";
 import { formatPrice } from "@/lib/utils";
@@ -14,12 +15,13 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
+  const [showArchived, setShowArchived] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    getOrders({ status: statusFilter || undefined, limit: 48 })
+    getOrders({ status: statusFilter || undefined, archived: showArchived, limit: 48 })
       .then((res) => {
         if (active) setOrders(res.orders);
       })
@@ -35,7 +37,7 @@ export default function AdminOrders() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
+  }, [statusFilter, showArchived]);
 
   return (
     <div>
@@ -45,18 +47,21 @@ export default function AdminOrders() {
           <p className="mt-1 text-sm text-neutral-500">{orders.length} total</p>
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "")}
-          className="field-input w-auto"
-        >
-          <option value="">All Statuses</option>
-          {ORDER_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap items-center gap-3">
+          <ArchiveTabs showArchived={showArchived} onChange={setShowArchived} />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "")}
+            className="field-input w-auto"
+          >
+            <option value="">All Statuses</option>
+            {ORDER_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border bg-surface shadow-soft">
@@ -79,7 +84,8 @@ export default function AdminOrders() {
           </table>
         ) : orders.length === 0 ? (
           <div className="p-10 text-center text-sm text-neutral-400">
-            No orders {statusFilter ? `with status "${statusFilter}"` : "yet"}.
+            No {showArchived ? "archived" : ""} orders {statusFilter ? `with status "${statusFilter}"` : ""}
+            {!showArchived && !statusFilter ? "yet" : ""}.
           </div>
         ) : (
           <table className="w-full text-left text-sm">

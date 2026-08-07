@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ImageOff } from "lucide-react";
 import { getProductRequests } from "@/services/productRequests";
 import { RequestStatusBadge } from "@/components/admin/RequestStatusBadge";
+import { ArchiveTabs } from "@/components/admin/ArchiveTabs";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -16,6 +17,7 @@ export default function AdminRequests() {
   const [requests, setRequests] = useState<ProductRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "">("");
+  const [showArchived, setShowArchived] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebouncedValue(searchInput, 300);
   const { showToast } = useToast();
@@ -23,7 +25,12 @@ export default function AdminRequests() {
   useEffect(() => {
     let active = true;
     setLoading(true);
-    getProductRequests({ status: statusFilter || undefined, search: debouncedSearch || undefined, limit: 48 })
+    getProductRequests({
+      status: statusFilter || undefined,
+      archived: showArchived,
+      search: debouncedSearch || undefined,
+      limit: 48,
+    })
       .then((res) => {
         if (active) setRequests(res.requests);
       })
@@ -39,7 +46,7 @@ export default function AdminRequests() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, debouncedSearch]);
+  }, [statusFilter, showArchived, debouncedSearch]);
 
   return (
     <div>
@@ -50,6 +57,7 @@ export default function AdminRequests() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <ArchiveTabs showArchived={showArchived} onChange={setShowArchived} />
           <SearchBar
             value={searchInput}
             onChange={setSearchInput}
@@ -91,8 +99,8 @@ export default function AdminRequests() {
           </table>
         ) : requests.length === 0 ? (
           <div className="p-10 text-center text-sm text-neutral-400">
-            No requests{statusFilter ? ` with status "${statusFilter}"` : ""}
-            {debouncedSearch ? ` matching "${debouncedSearch}"` : ""}.
+            No {showArchived ? "archived " : ""}requests{statusFilter ? ` with status "${statusFilter}"` : ""}
+            {debouncedSearch ? ` matching "${debouncedSearch}"` : !showArchived && !statusFilter ? " yet" : ""}.
           </div>
         ) : (
           <table className="w-full text-left text-sm">

@@ -77,3 +77,11 @@ export function updateOrderStatus(id: string, status: OrderStatus): Promise<Orde
     auth: true,
   });
 }
+
+export function setOrderArchived(id: string, archived: boolean): Promise<Order> {
+  return apiRequest<Order>(`/orders/${id}/archive`, {
+    method: "PATCH",
+    body: JSON.stringify({ archived }),
+    auth: true,
+  });
+}

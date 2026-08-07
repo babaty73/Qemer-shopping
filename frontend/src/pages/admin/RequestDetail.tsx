@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Ban, CheckCircle2, ImageOff, XCircle } from "lucide-react";
-import { getProductRequestById, updateProductRequestStatus } from "@/services/productRequests";
+import { Archive, ArchiveRestore, ArrowLeft, CheckCircle2, ImageOff, XCircle } from "lucide-react";
+import { getProductRequestById, setProductRequestArchived, updateProductRequestStatus } from "@/services/productRequests";
 import { RequestStatusBadge } from "@/components/admin/RequestStatusBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
@@ -9,12 +9,15 @@ import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/utils";
 import type { ProductRequest, RequestStatus } from "@/types";
 
+const ARCHIVABLE_STATUSES: RequestStatus[] = ["Approved", "Declined"];
+
 export default function RequestDetail() {
   const { id } = useParams<{ id: string }>();
   const { showToast } = useToast();
 
   const [request, setRequest] = useState<ProductRequest | null | undefined>(undefined);
   const [updating, setUpdating] = useState<RequestStatus | null>(null);
+  const [archiving, setArchiving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -45,6 +48,20 @@ export default function RequestDetail() {
     }
   }
 
+  async function handleArchiveChange(archived: boolean) {
+    if (!request) return;
+    setArchiving(true);
+    try {
+      const updated = await setProductRequestArchived(request._id, archived);
+      setRequest(updated);
+      showToast(archived ? "Request archived" : "Request restored to active list");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update request", "error");
+    } finally {
+      setArchiving(false);
+    }
+  }
+
   if (request === undefined) {
     return (
       <div className="max-w-3xl">
@@ -69,6 +86,8 @@ export default function RequestDetail() {
     );
   }
 
+  const isTerminal = ARCHIVABLE_STATUSES.includes(request.status);
+
   return (
     <div className="max-w-5xl">
       <Link
@@ -85,7 +104,14 @@ export default function RequestDetail() {
             Requested {new Date(request.createdAt).toLocaleString()}
           </p>
         </div>
-        <RequestStatusBadge status={request.status} />
+        <div className="flex items-center gap-2">
+          {request.archived && (
+            <span className="rounded-full border border-border bg-neutral-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Archived
+            </span>
+          )}
+          <RequestStatusBadge status={request.status} />
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -137,7 +163,7 @@ export default function RequestDetail() {
           <div className="surface-card p-6">
             <p className="text-base font-medium text-neutral-900">Actions</p>
             <div className="mt-4 flex flex-col gap-2">
-              {request.status === "Pending Review" ? (
+              {request.status === "Pending Review" && (
                 <>
                   <button
                     type="button"
@@ -158,11 +184,30 @@ export default function RequestDetail() {
                     {updating === "Declined" ? "Declining…" : "Decline"}
                   </button>
                 </>
-              ) : (
-                <p className="flex items-center gap-2 rounded-xl bg-neutral-50 px-4 py-3 text-sm text-neutral-500">
-                  <Ban className="h-4 w-4 shrink-0" aria-hidden />
-                  This request is in a final state — no further actions available.
-                </p>
+              )}
+
+              {isTerminal && !request.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(true)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <Archive className="h-4 w-4" aria-hidden />
+                  {archiving ? "Archiving…" : "Archive Request"}
+                </button>
+              )}
+
+              {request.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(false)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <ArchiveRestore className="h-4 w-4" aria-hidden />
+                  {archiving ? "Restoring…" : "Restore from Archive"}
+                </button>
               )}
             </div>
           </div>

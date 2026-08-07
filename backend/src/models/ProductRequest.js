@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 
 export const REQUEST_STATUSES = ["Pending Review", "Approved", "Declined"];
 
+// Only Approved/Declined (terminal) requests can be archived — a request
+// still awaiting review should stay in the active list.
+export const ARCHIVABLE_REQUEST_STATUSES = ["Approved", "Declined"];
+
 const productRequestSchema = new Schema(
   {
     productName: {

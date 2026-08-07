@@ -2,7 +2,13 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { authenticate } from "../middleware/auth.js";
 import { upload } from "../middleware/upload.js";
-import { createOrder, listOrders, getOrderById, updateOrderStatus } from "../controllers/orderController.js";
+import {
+  createOrder,
+  listOrders,
+  getOrderById,
+  updateOrderStatus,
+  setOrderArchived,
+} from "../controllers/orderController.js";
 
 const router = Router();
 
@@ -20,5 +26,6 @@ router.post("/", createOrderLimiter, upload.single("paymentScreenshot"), createO
 router.get("/", authenticate, listOrders);
 router.get("/:id", authenticate, getOrderById);
 router.patch("/:id/status", authenticate, updateOrderStatus);
+router.patch("/:id/archive", authenticate, setOrderArchived);
 
 export default router;

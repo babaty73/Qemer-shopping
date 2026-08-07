@@ -1,5 +1,5 @@
 import { cloudinary } from "../config/cloudinary.js";
-import { Order, ORDER_STATUSES } from "../models/Order.js";
+import { Order, ORDER_STATUSES, ARCHIVABLE_ORDER_STATUSES } from "../models/Order.js";
 import { Product } from "../models/Product.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { buildPaymentAcceptedEmail, buildPaymentRejectedEmail } from "../emails/orderEmails.js";
@@ -157,6 +157,35 @@ export async function updateOrderStatus(req, res, next) {
       }
     }
 
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PATCH /api/orders/:id/archive — admin only. Body: { archived: boolean }.
+ * Only orders in a terminal status (Delivered / Payment Rejected /
+ * Cancelled) can be archived; archiving is reversible (restore).
+ */
+export async function setOrderArchived(req, res, next) {
+  try {
+    const { archived } = req.body;
+    if (typeof archived !== "boolean") {
+      return res.status(400).json({ message: "archived must be true or false" });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    if (archived && !ARCHIVABLE_ORDER_STATUSES.includes(order.status)) {
+      return res
+        .status(400)
+        .json({ message: `Orders with status "${order.status}" can't be archived yet` });
+    }
+
+    order.archived = archived;
+    await order.save();
     res.json(order);
   } catch (err) {
     next(err);

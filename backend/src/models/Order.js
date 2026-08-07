@@ -11,6 +11,11 @@ export const ORDER_STATUSES = [
   "Cancelled",
 ];
 
+// Only orders in one of these terminal states can be archived — an order
+// still in progress (Pending Verification / Accepted / Preparing) should
+// stay in the active list where the admin is tracking it.
+export const ARCHIVABLE_ORDER_STATUSES = ["Delivered", "Payment Rejected", "Cancelled"];
+
 const orderItemSchema = new Schema(
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
