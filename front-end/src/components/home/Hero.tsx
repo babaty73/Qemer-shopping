@@ -29,7 +29,7 @@ export function Hero() {
           <p className="mt-6 max-w-md text-base leading-relaxed text-neutral-500 sm:text-lg">
             Kemer Market brings curated products online — browse freely, then
             place your order straight through Telegram or WhatsApp. No
-            accounts, no checkout forms.
+            accounts.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -50,7 +50,7 @@ export function Hero() {
         >
           <div className="aspect-[4/5] overflow-hidden rounded-3xl border border-border shadow-lifted">
             <img
-              src="https://picsum.photos/seed/kemer-hero/900/1100"
+              src="https://vmedu.com/backoffice/images/Articleimages/Online%20Marketplaces_06152016.jpg"
               alt="A curated selection of Kemer Market products"
               className="h-full w-full object-cover"
             />
