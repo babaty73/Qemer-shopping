@@ -1,7 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { authenticate } from "../middleware/auth.js";
-import { upload } from "../middleware/upload.js";
+import { upload, verifyImageSignature } from "../middleware/upload.js";
 import {
   createOrder,
   listOrders,
@@ -22,7 +22,7 @@ const createOrderLimiter = rateLimit({
   message: { message: "Too many orders from this device. Please try again later." },
 });
 
-router.post("/", createOrderLimiter, upload.single("paymentScreenshot"), createOrder);
+router.post("/", createOrderLimiter, upload.single("paymentScreenshot"), verifyImageSignature, createOrder);
 router.get("/", authenticate, listOrders);
 router.get("/:id", authenticate, getOrderById);
 router.patch("/:id/status", authenticate, updateOrderStatus);

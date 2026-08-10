@@ -10,6 +10,40 @@ const SORT_MAP = {
   price_desc: { price: -1 },
 };
 
+// Fields an authenticated admin is allowed to set on a product. `slug` is
+// derived server-side (see Product.js's pre-validate hook) and must never
+// be settable directly; `_id`/`createdAt`/`updatedAt` are likewise never
+// client-writable.
+const PRODUCT_WRITABLE_FIELDS = [
+  "name",
+  "description",
+  "category",
+  "price",
+  "images",
+  "colors",
+  "sizes",
+  "featured",
+  "inStock",
+  "stock",
+];
+
+/**
+ * Whitelists the product-writable fields out of a request body, so extra
+ * keys (e.g. `slug`, `createdAt`, `_id`) can never reach the document via
+ * Product.create()/Object.assign(). Only copies a key if it was actually
+ * present on the source body, so behavior for the current frontend (which
+ * always sends the full field set) is unchanged.
+ */
+function pickProductFields(body) {
+  const picked = {};
+  for (const field of PRODUCT_WRITABLE_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(body, field)) {
+      picked[field] = body[field];
+    }
+  }
+  return picked;
+}
+
 /** GET /api/products — public, supports search/category/sort/pagination. */
 export async function listProducts(req, res, next) {
   try {
@@ -64,7 +98,7 @@ export async function getProductBySlug(req, res, next) {
 /** POST /api/products — admin only. Expects image URLs already uploaded via /api/uploads. */
 export async function createProduct(req, res, next) {
   try {
-    const product = await Product.create(req.body);
+    const product = await Product.create(pickProductFields(req.body));
     res.status(201).json(product);
   } catch (err) {
     next(err);
@@ -77,7 +111,7 @@ export async function updateProduct(req, res, next) {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    Object.assign(product, req.body);
+    Object.assign(product, pickProductFields(req.body));
     await product.save();
     res.json(product);
   } catch (err) {

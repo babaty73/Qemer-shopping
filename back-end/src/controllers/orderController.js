@@ -35,13 +35,39 @@ export async function createOrder(req, res, next) {
     const products = await Product.find({ _id: { $in: productIds } });
     const productMap = new Map(products.map((p) => [p._id.toString(), p]));
 
+    // Sanity bound on a single line's quantity — this is anti-abuse/anti-
+    // mistake input validation, NOT a stock/inventory policy. Orders are
+    // intentionally allowed to request more than a product's current
+    // `stock` value: every order sits in "Pending Verification" for a
+    // human admin to review before it's ever accepted, and stock is only
+    // decremented when an order is marked "Delivered" (see
+    // updateOrderStatus below). Enforcing stock availability here would
+    // change that intended workflow, so it's deliberately not done.
+    const MAX_ITEM_QUANTITY = 100;
+
     const orderItems = [];
     for (const requested of requestedItems) {
       const product = productMap.get(String(requested.productId));
       if (!product) {
         return res.status(400).json({ message: "One of the items in your cart is no longer available" });
       }
-      const quantity = Math.max(1, Math.floor(Number(requested.quantity) || 1));
+
+      const requestedQuantity = Number(requested.quantity);
+      if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1 || requestedQuantity > MAX_ITEM_QUANTITY) {
+        return res.status(400).json({ message: `Invalid quantity for ${product.name}` });
+      }
+
+      if (requested.color && !product.colors.includes(requested.color)) {
+        return res
+          .status(400)
+          .json({ message: `"${requested.color}" is not an available color for ${product.name}` });
+      }
+      if (requested.size && !product.sizes.includes(requested.size)) {
+        return res
+          .status(400)
+          .json({ message: `"${requested.size}" is not an available size for ${product.name}` });
+      }
+
       orderItems.push({
         product: product._id,
         name: product.name,
@@ -49,7 +75,7 @@ export async function createOrder(req, res, next) {
         image: product.images[0],
         color: requested.color || undefined,
         size: requested.size || undefined,
-        quantity,
+        quantity: requestedQuantity,
       });
     }
 

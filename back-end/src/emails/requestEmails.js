@@ -1,13 +1,16 @@
 import { renderEmailLayout } from "./layout.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 /** Sent when an admin approves a custom product request. */
 export function buildRequestApprovedEmail(request) {
   const variant = [request.color, request.size ? `size ${request.size}` : null].filter(Boolean).join(", ");
+  const productName = escapeHtml(request.productName);
+  const escapedVariant = escapeHtml(variant);
 
   const bodyHtml = `
     <h1 style="margin:0 0 12px;font-size:20px;color:#16140F;">Your product request was approved</h1>
     <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#57534B;">
-      Good news — we're going to source <strong>${request.productName}</strong>${variant ? ` (${variant})` : ""}
+      Good news — we're going to source <strong>${productName}</strong>${escapedVariant ? ` (${escapedVariant})` : ""}
       for you. We'll reach out at this email once it's ready.
     </p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
@@ -29,10 +32,12 @@ export function buildRequestApprovedEmail(request) {
 
 /** Sent when an admin declines a custom product request. */
 export function buildRequestDeclinedEmail(request) {
+  const productName = escapeHtml(request.productName);
+
   const bodyHtml = `
     <h1 style="margin:0 0 12px;font-size:20px;color:#16140F;">About your product request</h1>
     <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#57534B;">
-      Thanks for asking us about <strong>${request.productName}</strong>. Unfortunately we're not able to
+      Thanks for asking us about <strong>${productName}</strong>. Unfortunately we're not able to
       source this item right now.
     </p>
     <p style="margin:0;font-size:14px;line-height:1.6;color:#57534B;">

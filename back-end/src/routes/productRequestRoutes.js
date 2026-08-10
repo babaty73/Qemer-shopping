@@ -1,7 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { authenticate } from "../middleware/auth.js";
-import { upload } from "../middleware/upload.js";
+import { upload, verifyImageSignature } from "../middleware/upload.js";
 import {
   createProductRequest,
   listProductRequests,
@@ -20,7 +20,7 @@ const createRequestLimiter = rateLimit({
   message: { message: "Too many requests from this device. Please try again later." },
 });
 
-router.post("/", createRequestLimiter, upload.single("image"), createProductRequest);
+router.post("/", createRequestLimiter, upload.single("image"), verifyImageSignature, createProductRequest);
 router.get("/", authenticate, listProductRequests);
 router.get("/:id", authenticate, getProductRequestById);
 router.patch("/:id/status", authenticate, updateProductRequestStatus);

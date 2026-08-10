@@ -1,13 +1,16 @@
 import { renderEmailLayout, formatEtb, shortOrderId } from "./layout.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 function itemsTable(items) {
   const rows = items
     .map((item) => {
       const variant = [item.color, item.size].filter(Boolean).join(", ");
+      const name = escapeHtml(item.name);
+      const escapedVariant = escapeHtml(variant);
       return `
       <tr>
         <td style="padding:8px 0;font-size:14px;color:#3F3B35;border-bottom:1px solid #F2F0EA;">
-          ${item.name}${variant ? ` (${variant})` : ""} × ${item.quantity}
+          ${name}${escapedVariant ? ` (${escapedVariant})` : ""} × ${item.quantity}
         </td>
         <td style="padding:8px 0;font-size:14px;color:#16140F;text-align:right;border-bottom:1px solid #F2F0EA;">
           ${formatEtb(item.price * item.quantity)}
@@ -24,7 +27,7 @@ export function buildPaymentAcceptedEmail(order) {
   const bodyHtml = `
     <h1 style="margin:0 0 12px;font-size:20px;color:#16140F;">Your payment has been verified</h1>
     <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#57534B;">
-      Hi ${order.customer.fullName}, thanks for your order — we've confirmed your payment for order
+      Hi ${escapeHtml(order.customer.fullName)}, thanks for your order — we've confirmed your payment for order
       <strong>#${shortOrderId(order._id)}</strong> and we're preparing it now.
     </p>
     ${itemsTable(order.items)}
@@ -35,7 +38,7 @@ export function buildPaymentAcceptedEmail(order) {
       </tr>
     </table>
     <p style="margin:24px 0 0;font-size:14px;line-height:1.6;color:#57534B;">
-      We'll be in touch about delivery to <strong>${order.customer.address}</strong>.
+      We'll be in touch about delivery to <strong>${escapeHtml(order.customer.address)}</strong>.
       If anything looks off, just reply to this email or message us on Telegram/WhatsApp.
     </p>
   `;
@@ -51,7 +54,7 @@ export function buildPaymentRejectedEmail(order) {
   const bodyHtml = `
     <h1 style="margin:0 0 12px;font-size:20px;color:#16140F;">We couldn't verify your payment</h1>
     <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#57534B;">
-      Hi ${order.customer.fullName}, we reviewed the payment screenshot for order
+      Hi ${escapeHtml(order.customer.fullName)}, we reviewed the payment screenshot for order
       <strong>#${shortOrderId(order._id)}</strong> but weren't able to verify it against our records.
     </p>
     <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#57534B;">
