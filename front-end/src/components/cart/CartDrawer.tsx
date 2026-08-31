@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShoppingBag, X } from "lucide-react";
@@ -11,31 +12,30 @@ import { cn, formatPrice } from "@/lib/utils";
 export function CartDrawer() {
   const { items, isOpen, closeCart, subtotal } = useCart();
 
-  // Without this, the page behind a fixed-position overlay stays
-  // scrollable — on mobile Safari in particular, that makes touches on
-  // the overlay's own buttons unreliable, and the overlay can fail to
-  // visually update (close) until something forces a repaint, like a
-  // page refresh. Matches the same pattern already used for the mobile
-  // nav menu in Navbar.tsx.
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalOverflow;
     };
   }, [isOpen]);
 
-  return (
+  const drawer = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[95] flex justify-end">
+        <div className="fixed inset-0 z-[9999] flex justify-end">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeCart}
             className="absolute inset-0 bg-neutral-900/45"
-            aria-hidden
+            aria-hidden="true"
           />
+
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -44,30 +44,42 @@ export function CartDrawer() {
             role="dialog"
             aria-modal="true"
             aria-label="Shopping cart"
-            className="relative flex h-full w-full max-w-md flex-col bg-surface shadow-lifted"
+            className="relative z-10 flex h-full w-full max-w-md flex-col bg-surface shadow-lifted"
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-5">
               <p className="text-base font-medium text-neutral-900">
                 Your Cart {items.length > 0 && `(${items.length})`}
               </p>
+
               <button
                 type="button"
                 onClick={closeCart}
                 aria-label="Close cart"
                 className="rounded-full p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600"
               >
-                <X className="h-4 w-4" aria-hidden />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
 
             {items.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-primary">
-                  <ShoppingBag className="h-6 w-6" aria-hidden />
+                  <ShoppingBag className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <p className="mt-5 text-base font-medium text-neutral-900">Your cart is empty</p>
-                <p className="mt-1.5 text-sm text-neutral-500">Add something you like from the shop.</p>
-                <Link to="/shop" onClick={closeCart} className={cn(buttonVariants(), "mt-6")}>
+
+                <p className="mt-5 text-base font-medium text-neutral-900">
+                  Your cart is empty
+                </p>
+
+                <p className="mt-1.5 text-sm text-neutral-500">
+                  Add something you like from the shop.
+                </p>
+
+                <Link
+                  to="/shop"
+                  onClick={closeCart}
+                  className={cn(buttonVariants(), "mt-6")}
+                >
                   Browse Shop
                 </Link>
               </div>
@@ -84,16 +96,28 @@ export function CartDrawer() {
                 <div className="border-t border-border px-6 py-5">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-neutral-500">Subtotal</span>
-                    <span className="price-tag font-semibold text-neutral-900">{formatPrice(subtotal)}</span>
+
+                    <span className="price-tag font-semibold text-neutral-900">
+                      {formatPrice(subtotal)}
+                    </span>
                   </div>
+
                   <div className="mt-4 flex flex-col gap-2">
-                    <Link to="/cart" onClick={closeCart} className={buttonVariants({ size: "lg" })}>
+                    <Link
+                      to="/cart"
+                      onClick={closeCart}
+                      className={buttonVariants({ size: "lg" })}
+                    >
                       View Cart
                     </Link>
+
                     <Link
                       to="/checkout"
                       onClick={closeCart}
-                      className={buttonVariants({ variant: "outline", size: "lg" })}
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "lg",
+                      })}
                     >
                       Checkout
                     </Link>
@@ -106,4 +130,8 @@ export function CartDrawer() {
       )}
     </AnimatePresence>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(drawer, document.body)
+    : null;
 }
