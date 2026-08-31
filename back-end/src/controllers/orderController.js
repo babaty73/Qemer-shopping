@@ -1,5 +1,6 @@
+import mongoose from "mongoose";
 import { cloudinary } from "../config/cloudinary.js";
-import { Order, ORDER_STATUSES, ARCHIVABLE_ORDER_STATUSES } from "../models/Order.js";
+import { Order, ORDER_STATUSES, ORDER_TRANSITIONS, ARCHIVABLE_ORDER_STATUSES } from "../models/Order.js";
 import { Product } from "../models/Product.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { buildPaymentAcceptedEmail, buildPaymentRejectedEmail } from "../emails/orderEmails.js";
@@ -135,15 +136,75 @@ export async function getOrderById(req, res, next) {
 }
 
 /**
+ * Atomically decrements one product's stock by `quantity`, for use inside
+ * the Delivered-transition transaction below. Two conditional
+ * findOneAndUpdate calls instead of a plain `$inc`:
+ *
+ *  1. If there's enough stock (`stock >= quantity`), decrement normally.
+ *     The filter and the update run as one atomic operation, so two
+ *     concurrent deliveries of the same product can never both read the
+ *     same starting value and silently lose one decrement — MongoDB
+ *     serializes the two findOneAndUpdate calls against each other.
+ *  2. If step 1 finds no matching document (not enough recorded stock —
+ *     e.g. two orders for the same product both being delivered around
+ *     the same time, or an order that always exceeded stock per
+ *     createOrder's documented allowance), clamp to exactly 0 instead of
+ *     going negative. This filter (`stock: { $gt: 0 }`) is itself
+ *     re-checked atomically at write time, not based on a value read
+ *     earlier, so it's correct even if another request changed stock in
+ *     between steps 1 and 2 of *this* call.
+ *
+ * If the product no longer exists, both calls simply match nothing and
+ * this is a silent no-op — matching the previous behavior.
+ */
+async function decrementProductStock(productId, quantity, session) {
+  let updated = await Product.findOneAndUpdate(
+    { _id: productId, stock: { $gte: quantity } },
+    { $inc: { stock: -quantity } },
+    { new: true, session }
+  );
+
+  if (!updated) {
+    updated = await Product.findOneAndUpdate(
+      { _id: productId, stock: { $gt: 0 } },
+      { $set: { stock: 0 } },
+      { new: true, session }
+    );
+  }
+
+  if (updated && updated.stock === 0 && updated.inStock) {
+    await Product.updateOne({ _id: updated._id }, { $set: { inStock: false } }, { session });
+  }
+}
+
+/**
  * PATCH /api/orders/:id/status — admin only. Body: { status }.
- * Transitioning into "Delivered" reduces stock for each ordered product;
- * a product that hits zero stock is flipped to inStock: false rather than
- * deleted, so it stays visible (as "Out of Stock") for browsing and custom
- * requests. Guarded by `wasAlreadyDelivered` so re-saving an already-
- * delivered order (e.g. re-submitting the same status) never double-decrements.
- * Transitioning into "Accepted" or "Payment Rejected" emails the customer —
- * guarded the same way, against `previousStatus`, so re-saving the same
- * status never re-sends the email.
+ *
+ * Every status change is checked against ORDER_TRANSITIONS (see Order.js)
+ * before it's applied — an invalid transition (e.g. Pending Verification
+ * -> Delivered, or anything out of a terminal status) is rejected with
+ * 400 rather than silently applied. Resubmitting the *same* status the
+ * order is already at is always allowed as a no-op (matches the previous
+ * behavior for safe retries) and skips both the transition check and any
+ * side effects below.
+ *
+ * Transitioning into "Delivered" reduces stock for each ordered product
+ * and, if that brings a product to 0, flips inStock to false (the product
+ * stays visible as "Out of Stock" rather than being deleted). This runs
+ * inside a MongoDB session transaction together with the order's own
+ * status save, so a failure partway through (e.g. the 2nd of 3 products
+ * fails to update) rolls back everything — the order's status is never
+ * left "Delivered" with only some of its stock decremented. This requires
+ * the MongoDB deployment to be a replica set, which is what this app is
+ * already documented to run against (see config/db.js) — MongoDB Atlas is
+ * always a replica set, including on the free tier. A local standalone
+ * `mongodb://` instance without replica set configuration cannot run
+ * transactions; this only matters for local development against such a
+ * database, not for the deployed target.
+ *
+ * Transitioning into "Accepted" or "Payment Rejected" emails the customer,
+ * guarded the same way (only on a genuine status change), so re-saving
+ * the same status never re-sends the email.
  */
 export async function updateOrderStatus(req, res, next) {
   try {
@@ -156,24 +217,40 @@ export async function updateOrderStatus(req, res, next) {
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     const previousStatus = order.status;
-    const wasAlreadyDelivered = previousStatus === "Delivered";
-    order.status = status;
-    await order.save();
+    const isStatusChange = status !== previousStatus;
 
-    if (status === "Delivered" && !wasAlreadyDelivered) {
-      await Promise.all(
-        order.items.map(async (item) => {
-          const product = await Product.findById(item.product);
-          if (!product) return;
-
-          product.stock = Math.max(0, product.stock - item.quantity);
-          if (product.stock === 0) product.inStock = false;
-          await product.save();
-        })
-      );
+    if (isStatusChange) {
+      const allowedNextStatuses = ORDER_TRANSITIONS[previousStatus] ?? [];
+      if (!allowedNextStatuses.includes(status)) {
+        return res.status(400).json({
+          message: `Cannot change order status from "${previousStatus}" to "${status}"`,
+        });
+      }
     }
 
-    if (status !== previousStatus) {
+    const movingToDelivered = status === "Delivered" && isStatusChange;
+
+    if (movingToDelivered) {
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          order.status = status;
+          await order.save({ session });
+
+          for (const item of order.items) {
+            // eslint-disable-next-line no-await-in-loop
+            await decrementProductStock(item.product, item.quantity, session);
+          }
+        });
+      } finally {
+        await session.endSession();
+      }
+    } else {
+      order.status = status;
+      await order.save();
+    }
+
+    if (isStatusChange) {
       if (status === "Accepted") {
         const { subject, html } = buildPaymentAcceptedEmail(order);
         await sendEmail({ to: order.customer.email, subject, html });
