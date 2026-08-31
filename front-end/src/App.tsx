@@ -7,6 +7,7 @@ import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { CartProvider } from "@/context/CartContext";
+import { Analytics } from "@vercel/analytics/react"
 import { ProductRequestProvider } from "@/context/ProductRequestContext";
 
 const Home = lazy(() => import("@/pages/Home"));
@@ -46,6 +47,7 @@ function PageFallback() {
 
 export default function App() {
   return (
+    <>
     <AuthProvider>
       <ToastProvider>
         <CartProvider>
@@ -83,5 +85,7 @@ export default function App() {
         </CartProvider>
       </ToastProvider>
     </AuthProvider>
+    <Analytics />
+    </>
   );
 }
