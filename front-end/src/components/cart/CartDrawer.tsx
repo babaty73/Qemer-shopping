@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ShoppingBag, X } from "lucide-react";
@@ -9,6 +10,19 @@ import { cn, formatPrice } from "@/lib/utils";
 /** Slide-in quick view of the cart, opened from the navbar's cart icon. */
 export function CartDrawer() {
   const { items, isOpen, closeCart, subtotal } = useCart();
+
+  // Without this, the page behind a fixed-position overlay stays
+  // scrollable — on mobile Safari in particular, that makes touches on
+  // the overlay's own buttons unreliable, and the overlay can fail to
+  // visually update (close) until something forces a repaint, like a
+  // page refresh. Matches the same pattern already used for the mobile
+  // nav menu in Navbar.tsx.
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
