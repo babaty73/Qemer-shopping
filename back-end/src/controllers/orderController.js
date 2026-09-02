@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 import { cloudinary } from "../config/cloudinary.js";
 import { Order, ORDER_STATUSES, ORDER_TRANSITIONS, ARCHIVABLE_ORDER_STATUSES } from "../models/Order.js";
 import { Product } from "../models/Product.js";
-import { sendEmail } from "../utils/sendEmail.js";
-import { buildPaymentAcceptedEmail, buildPaymentRejectedEmail } from "../emails/orderEmails.js";
 
 /**
  * POST /api/orders — public. Multipart: text fields + `items` (JSON string
@@ -202,9 +200,9 @@ async function decrementProductStock(productId, quantity, session) {
  * transactions; this only matters for local development against such a
  * database, not for the deployed target.
  *
- * Transitioning into "Accepted" or "Payment Rejected" emails the customer,
- * guarded the same way (only on a genuine status change), so re-saving
- * the same status never re-sends the email.
+ * No customer notification is sent from here — email notifications were
+ * removed from the app entirely. The admin dashboard's own UI is the only
+ * place order status changes are communicated.
  */
 export async function updateOrderStatus(req, res, next) {
   try {
@@ -248,16 +246,6 @@ export async function updateOrderStatus(req, res, next) {
     } else {
       order.status = status;
       await order.save();
-    }
-
-    if (isStatusChange) {
-      if (status === "Accepted") {
-        const { subject, html } = buildPaymentAcceptedEmail(order);
-        await sendEmail({ to: order.customer.email, subject, html });
-      } else if (status === "Payment Rejected") {
-        const { subject, html } = buildPaymentRejectedEmail(order);
-        await sendEmail({ to: order.customer.email, subject, html });
-      }
     }
 
     res.json(order);

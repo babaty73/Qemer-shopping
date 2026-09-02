@@ -89,3 +89,35 @@ export function getWhatsAppContactLink(input: ContactMessageInput): string {
   const text = encodeURIComponent(buildContactMessage(input));
   return `https://wa.me/${phone}?text=${text}`;
 }
+
+interface RequestApprovalMessageInput {
+  productName: string;
+  color: string;
+  size: string;
+  quantity: number;
+  email: string;
+  deliveryAddress: string;
+}
+
+function buildRequestApprovalMessage(request: RequestApprovalMessageInput): string {
+  return [
+    "Product request approved — ready to relay to the customer:",
+    `Product: ${request.productName}`,
+    `Color: ${request.color}`,
+    `Size: ${request.size}`,
+    `Quantity: ${request.quantity}`,
+    `Customer email: ${request.email}`,
+    `Delivery address: ${request.deliveryAddress}`,
+  ].join("\n");
+}
+
+/**
+ * Deep link that opens Telegram with a prefilled note after an admin
+ * approves a product request — no automated email is sent; the admin
+ * reviews this message in Telegram and sends it themselves.
+ */
+export function getRequestApprovalTelegramLink(request: RequestApprovalMessageInput): string {
+  const username = import.meta.env.VITE_TELEGRAM_USERNAME ?? "kemermarket";
+  const text = encodeURIComponent(buildRequestApprovalMessage(request));
+  return `https://t.me/${username}?text=${text}`;
+}

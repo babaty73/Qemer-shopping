@@ -1,7 +1,5 @@
 import { cloudinary } from "../config/cloudinary.js";
 import { ProductRequest, REQUEST_STATUSES, ARCHIVABLE_REQUEST_STATUSES } from "../models/ProductRequest.js";
-import { sendEmail } from "../utils/sendEmail.js";
-import { buildRequestApprovedEmail, buildRequestDeclinedEmail } from "../emails/requestEmails.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
 /** POST /api/product-requests — public. Multipart: text fields + optional `image` file. No payment involved. */
@@ -83,8 +81,10 @@ export async function getProductRequestById(req, res, next) {
 
 /**
  * PATCH /api/product-requests/:id/status — admin only. Body: { status }.
- * Emails the customer on a genuine transition into Approved/Declined,
- * guarded against `previousStatus` so re-saving the same status never re-sends.
+ * No email is sent from here — email notifications were removed from the
+ * app entirely. When a request is approved, the admin dashboard opens a
+ * prefilled Telegram message for the admin to review and send manually
+ * (see front-end/src/pages/admin/RequestDetail.tsx) instead.
  */
 export async function updateProductRequestStatus(req, res, next) {
   try {
@@ -96,19 +96,8 @@ export async function updateProductRequestStatus(req, res, next) {
     const request = await ProductRequest.findById(req.params.id);
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    const previousStatus = request.status;
     request.status = status;
     await request.save();
-
-    if (status !== previousStatus) {
-      if (status === "Approved") {
-        const { subject, html } = buildRequestApprovedEmail(request);
-        await sendEmail({ to: request.email, subject, html });
-      } else if (status === "Declined") {
-        const { subject, html } = buildRequestDeclinedEmail(request);
-        await sendEmail({ to: request.email, subject, html });
-      }
-    }
 
     res.json(request);
   } catch (err) {

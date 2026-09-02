@@ -6,7 +6,7 @@ import { RequestStatusBadge } from "@/components/admin/RequestStatusBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
-import { cn } from "@/lib/utils";
+import { cn, getRequestApprovalTelegramLink } from "@/lib/utils";
 import type { ProductRequest, RequestStatus } from "@/types";
 
 const ARCHIVABLE_STATUSES: RequestStatus[] = ["Approved", "Declined"];
@@ -40,7 +40,11 @@ export default function RequestDetail() {
     try {
       const updated = await updateProductRequestStatus(request._id, status);
       setRequest(updated);
-      showToast(`Request marked "${status}" — customer notified by email`);
+      showToast(`Request marked "${status}"`);
+
+      if (status === "Approved") {
+        window.open(getRequestApprovalTelegramLink(updated), "_blank", "noopener,noreferrer");
+      }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to update request", "error");
     } finally {
