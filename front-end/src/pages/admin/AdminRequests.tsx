@@ -5,21 +5,27 @@ import { getProductRequests } from "@/services/productRequests";
 import { RequestStatusBadge } from "@/components/admin/RequestStatusBadge";
 import { ArchiveTabs } from "@/components/admin/ArchiveTabs";
 import { SearchBar } from "@/components/ui/SearchBar";
+import { Pagination } from "@/components/ui/Pagination";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { usePageNumber } from "@/hooks/usePageNumber";
 import { useToast } from "@/context/ToastContext";
 import { REQUEST_STATUSES } from "@/types";
 import type { ProductRequest, RequestStatus } from "@/types";
 
 const TABLE_HEADERS = ["Product", "Requested By", "Variant", "Qty", "Status", "Date"];
+const PAGE_SIZE = 48;
 
 export default function AdminRequests() {
   const [requests, setRequests] = useState<ProductRequest[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "">("");
   const [showArchived, setShowArchived] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebouncedValue(searchInput, 300);
+  const [page, setPage] = usePageNumber([statusFilter, showArchived, debouncedSearch]);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -29,10 +35,14 @@ export default function AdminRequests() {
       status: statusFilter || undefined,
       archived: showArchived,
       search: debouncedSearch || undefined,
-      limit: 48,
+      page,
+      limit: PAGE_SIZE,
     })
       .then((res) => {
-        if (active) setRequests(res.requests);
+        if (!active) return;
+        setRequests(res.requests);
+        setTotalResults(res.totalResults);
+        setTotalPages(res.totalPages);
       })
       .catch((err) => {
         if (!active) return;
@@ -46,14 +56,18 @@ export default function AdminRequests() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, showArchived, debouncedSearch]);
+  }, [statusFilter, showArchived, debouncedSearch, page]);
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-medium text-neutral-900">Custom Requests</h1>
-          <p className="mt-1 text-sm text-neutral-500">{requests.length} total</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            {totalResults === 0
+              ? "0 total"
+              : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, totalResults)} of ${totalResults}`}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -152,6 +166,12 @@ export default function AdminRequests() {
           </table>
         )}
       </div>
+
+      {!loading && (
+        <div className="mt-8">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      )}
     </div>
   );
 }

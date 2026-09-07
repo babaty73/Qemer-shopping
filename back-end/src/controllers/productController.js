@@ -47,7 +47,7 @@ function pickProductFields(body) {
 /** GET /api/products — public, supports search/category/sort/pagination. */
 export async function listProducts(req, res, next) {
   try {
-    const { search, category, sort = "newest", featured, exclude } = req.query;
+    const { search, category, sort = "newest", featured, exclude, inStock } = req.query;
     const page = Math.max(1, Number(req.query.page) || 1);
     const limit = Math.min(MAX_LIMIT, Math.max(1, Number(req.query.limit) || DEFAULT_LIMIT));
 
@@ -63,6 +63,11 @@ export async function listProducts(req, res, next) {
     }
 
     if (featured === "true") query.featured = true;
+    // Used by the admin Dashboard to get an accurate "Out of Stock" count
+    // via a lightweight limit:1 request (reading totalResults) instead of
+    // loading the whole catalog into memory just to count it client-side.
+    if (inStock === "true") query.inStock = true;
+    else if (inStock === "false") query.inStock = false;
     if (exclude) query.slug = { $ne: String(exclude) };
 
     const [products, totalResults] = await Promise.all([

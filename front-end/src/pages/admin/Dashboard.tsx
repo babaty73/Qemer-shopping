@@ -3,35 +3,54 @@ import { AlertTriangle, Package, Star } from "lucide-react";
 import { getProducts } from "@/services/products";
 import { StatCardSkeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
-import type { Product } from "@/types";
+
+interface ProductStats {
+  total: number;
+  featured: number;
+  outOfStock: number;
+}
 
 export default function Dashboard() {
-  const [products, setProducts] = useState<Product[] | null>(null);
+  const [counts, setCounts] = useState<ProductStats | null>(null);
 
   useEffect(() => {
-    // Limit is capped at 48 server-side — fine for an MVP-scale catalog;
-    // a dedicated stats endpoint is the right move once it outgrows that.
-    getProducts({ limit: 48 })
-      .then((res) => setProducts(res.products))
-      .catch(() => setProducts([]));
+    // Each request asks for a single record (limit: 1) and reads back the
+    // server's totalResults — an accurate count across the FULL catalog.
+    // The previous version fetched up to 48 actual products and counted
+    // the array client-side, which silently undercounted every one of
+    // these three stats (not just "Total") once the catalog passed 48
+    // products, since anything beyond that page was invisible to the count.
+    Promise.all([
+      getProducts({ limit: 1 }),
+      getProducts({ limit: 1, featured: true }),
+      getProducts({ limit: 1, inStock: false }),
+    ])
+      .then(([total, featured, outOfStock]) => {
+        setCounts({
+          total: total.totalResults,
+          featured: featured.totalResults,
+          outOfStock: outOfStock.totalResults,
+        });
+      })
+      .catch(() => setCounts({ total: 0, featured: 0, outOfStock: 0 }));
   }, []);
 
   const stats = [
     {
       label: "Total Products",
-      value: products?.length ?? 0,
+      value: counts?.total ?? 0,
       icon: Package,
       iconClass: "bg-primary-light text-primary",
     },
     {
       label: "Featured",
-      value: products?.filter((p) => p.featured).length ?? 0,
+      value: counts?.featured ?? 0,
       icon: Star,
       iconClass: "bg-accent-light text-accent",
     },
     {
       label: "Out of Stock",
-      value: products?.filter((p) => !p.inStock).length ?? 0,
+      value: counts?.outOfStock ?? 0,
       icon: AlertTriangle,
       iconClass: "bg-warning-light text-warning",
     },
@@ -43,7 +62,7 @@ export default function Dashboard() {
       <p className="mt-1 text-sm text-neutral-500">A quick look at your catalog.</p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {products === null
+        {counts === null
           ? Array.from({ length: 3 }).map((_, i) => <StatCardSkeleton key={i} />)
           : stats.map((stat) => (
               <div key={stat.label} className="surface-card p-6">

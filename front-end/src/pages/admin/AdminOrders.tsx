@@ -3,27 +3,36 @@ import { Link } from "react-router-dom";
 import { getOrders } from "@/services/orders";
 import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
 import { ArchiveTabs } from "@/components/admin/ArchiveTabs";
+import { Pagination } from "@/components/ui/Pagination";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/context/ToastContext";
+import { usePageNumber } from "@/hooks/usePageNumber";
 import { formatPrice } from "@/lib/utils";
 import { ORDER_STATUSES } from "@/types";
 import type { Order, OrderStatus } from "@/types";
 
 const TABLE_HEADERS = ["Order", "Customer", "Items", "Total", "Status", "Date"];
+const PAGE_SIZE = 48;
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
   const [showArchived, setShowArchived] = useState(false);
+  const [page, setPage] = usePageNumber([statusFilter, showArchived]);
   const { showToast } = useToast();
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    getOrders({ status: statusFilter || undefined, archived: showArchived, limit: 48 })
+    getOrders({ status: statusFilter || undefined, archived: showArchived, page, limit: PAGE_SIZE })
       .then((res) => {
-        if (active) setOrders(res.orders);
+        if (!active) return;
+        setOrders(res.orders);
+        setTotalResults(res.totalResults);
+        setTotalPages(res.totalPages);
       })
       .catch((err) => {
         if (!active) return;
@@ -37,14 +46,18 @@ export default function AdminOrders() {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, showArchived]);
+  }, [statusFilter, showArchived, page]);
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-medium text-neutral-900">Orders</h1>
-          <p className="mt-1 text-sm text-neutral-500">{orders.length} total</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            {totalResults === 0
+              ? "0 total"
+              : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, totalResults)} of ${totalResults}`}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -126,6 +139,12 @@ export default function AdminOrders() {
           </table>
         )}
       </div>
+
+      {!loading && (
+        <div className="mt-8">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      )}
     </div>
   );
 }

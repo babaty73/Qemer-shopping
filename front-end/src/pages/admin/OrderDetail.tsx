@@ -14,7 +14,7 @@ import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getOrderAcceptedTelegramLink } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/types";
 
 const ARCHIVABLE_STATUSES: OrderStatus[] = ["Delivered", "Payment Rejected", "Cancelled"];
@@ -51,6 +51,17 @@ export default function OrderDetail() {
       showToast(
         status === "Delivered" ? "Order marked delivered — stock updated" : `Order updated to "${status}"`
       );
+
+      if (status === "Accepted") {
+        // Best-effort — the status update above already succeeded and must
+        // not be reported as failed just because the browser couldn't open
+        // a new tab (e.g. a popup blocker).
+        try {
+          window.open(getOrderAcceptedTelegramLink(updated), "_blank", "noopener,noreferrer");
+        } catch {
+          // Intentionally ignored — see comment above.
+        }
+      }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to update order", "error");
     } finally {

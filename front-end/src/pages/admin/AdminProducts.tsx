@@ -4,23 +4,32 @@ import { Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { deleteProduct, getProducts, toggleFeatured, toggleStock } from "@/services/products";
 import { useToast } from "@/context/ToastContext";
 import { Modal } from "@/components/ui/Modal";
+import { Pagination } from "@/components/ui/Pagination";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { Badge } from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
+import { usePageNumber } from "@/hooks/usePageNumber";
 import { cn, formatPrice } from "@/lib/utils";
 import type { Product } from "@/types";
 
+const PAGE_SIZE = 48;
+
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [page, setPage] = usePageNumber([]);
   const { showToast } = useToast();
 
   async function load() {
     setLoading(true);
     try {
-      const res = await getProducts({ limit: 48, sort: "newest" });
+      const res = await getProducts({ page, limit: PAGE_SIZE, sort: "newest" });
       setProducts(res.products);
+      setTotalResults(res.totalResults);
+      setTotalPages(res.totalPages);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to load products", "error");
     } finally {
@@ -31,7 +40,7 @@ export default function AdminProducts() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page]);
 
   async function handleToggleFeatured(product: Product) {
     try {
@@ -53,10 +62,19 @@ export default function AdminProducts() {
 
   async function confirmDelete() {
     if (!deleteTarget) return;
+    const deletedId = deleteTarget._id;
     try {
-      await deleteProduct(deleteTarget._id);
-      setProducts((prev) => prev.filter((p) => p._id !== deleteTarget._id));
+      await deleteProduct(deletedId);
       showToast("Product deleted");
+      // Re-fetch rather than just filtering the local array — deleting an
+      // item changes totalResults/totalPages, and if this was the last
+      // item on a page beyond page 1, step back a page instead of showing
+      // an empty page while later pages still have records.
+      if (products.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        await load();
+      }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to delete product", "error");
     } finally {
@@ -69,7 +87,11 @@ export default function AdminProducts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-medium text-neutral-900">Products</h1>
-          <p className="mt-1 text-sm text-neutral-500">{products.length} total</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            {totalResults === 0
+              ? "0 total"
+              : `Showing ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, totalResults)} of ${totalResults}`}
+          </p>
         </div>
         <Link to="/admin/products/new" className={buttonVariants()}>
           <Plus className="h-4 w-4" aria-hidden /> Add Product
@@ -182,6 +204,12 @@ export default function AdminProducts() {
           </table>
         )}
       </div>
+
+      {!loading && (
+        <div className="mt-8">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      )}
 
       <Modal open={deleteTarget !== null} onClose={() => setDeleteTarget(null)} title="Delete product?">
         <p className="text-sm text-neutral-500">
