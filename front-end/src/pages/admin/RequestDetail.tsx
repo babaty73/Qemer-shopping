@@ -43,7 +43,6 @@ export default function RequestDetail() {
       showToast(`Request marked "${status}"`);
 
       if (status === "Approved") {
-<<<<<<< HEAD
         const telegramLink = getRequestApprovalTelegramLink(updated);
         if (telegramLink) {
           // Best-effort — the status update above already succeeded and
@@ -60,9 +59,6 @@ export default function RequestDetail() {
           // doing nothing or opening the wrong (business) Telegram account.
           showToast("Request approved — no Telegram username on file for this customer", "error");
         }
-=======
-        window.open(getRequestApprovalTelegramLink(updated), "_blank", "noopener,noreferrer");
->>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
       }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to update request", "error");

@@ -53,7 +53,6 @@ export default function OrderDetail() {
       );
 
       if (status === "Accepted") {
-<<<<<<< HEAD
         const telegramLink = getOrderAcceptedTelegramLink(updated);
         if (telegramLink) {
           // Best-effort — the status update above already succeeded and
@@ -69,15 +68,6 @@ export default function OrderDetail() {
           // field existed) — say so plainly rather than silently doing
           // nothing or opening the wrong (business) Telegram account.
           showToast("Order accepted — no Telegram username on file for this customer", "error");
-=======
-        // Best-effort — the status update above already succeeded and must
-        // not be reported as failed just because the browser couldn't open
-        // a new tab (e.g. a popup blocker).
-        try {
-          window.open(getOrderAcceptedTelegramLink(updated), "_blank", "noopener,noreferrer");
-        } catch {
-          // Intentionally ignored — see comment above.
->>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
         }
       }
     } catch (err) {
