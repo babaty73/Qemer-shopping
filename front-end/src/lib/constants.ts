@@ -14,9 +14,9 @@ export const NAV_LINKS = [
 
 export const CONTACT_INFO = {
   telegramHandle: import.meta.env.VITE_TELEGRAM_USERNAME ?? "kemermarket",
-  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? "251900000000",
-  phoneDisplay: "+251 90 000 0000",
-  email: "hello@kemermarket.com",
+  whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? "251973362473",
+  phoneDisplay: "+251 973 362 473",
+  email: "imranidris@gmail.com",
   addressDisplay: "Bole, Addis Ababa, Ethiopia",
 } as const;
 
@@ -26,8 +26,8 @@ export const CONTACT_INFO = {
  * payment gateway is involved.
  */
 export const PAYMENT_INFO = {
-  bankName: "Commercial Bank of Ethiopia",
-  accountName: "Kemer Market PLC",
+  bankName: "Commercial Bank of Ethiopia CBE",
+  accountName: "Imran Endris",
   accountNumber: "1000123456789",
-  telebirrNumber: "+251 90 000 0000",
+  telebirrNumber: "+251973362473",
 } as const;

@@ -1,7 +1,10 @@
 import { Send, MessageCircle, Phone, Mail, MapPin } from "lucide-react";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { GoogleMap } from "@/components/contact/GoogleMap";
+//import { GoogleMap } from "@/components/contact/GoogleMap";
+// <div className="mt-8">
+          //   <GoogleMap address={CONTACT_INFO.addressDisplay} />
+          // </div>
 import { CONTACT_INFO } from "@/lib/constants";
 
 const CHANNELS = [
@@ -62,9 +65,7 @@ export default function Contact() {
             </li>
           </ul>
 
-          <div className="mt-8">
-            <GoogleMap address={CONTACT_INFO.addressDisplay} />
-          </div>
+         
         </div>
 
         <ContactForm />
