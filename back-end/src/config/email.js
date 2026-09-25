@@ -1,23 +1,18 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { env } from "./env.js";
 
 /**
  * Optional by design — the server should still run in development without
- * SMTP configured. If it's missing, `transporter` stays null and
+ * Resend configured. If RESEND_API_KEY is missing, `resend` stays null and
  * sendEmail() logs + no-ops instead of throwing.
  */
-let transporter = null;
+let resend = null;
 
-if (env.email.host && env.email.user && env.email.pass) {
-  transporter = nodemailer.createTransport({
-    host: env.email.host,
-    port: env.email.port,
-    secure: env.email.port === 465,
-    auth: { user: env.email.user, pass: env.email.pass },
-  });
+if (env.email.resendApiKey) {
+  resend = new Resend(env.email.resendApiKey);
 } else {
   // eslint-disable-next-line no-console
-  console.warn("SMTP not configured (SMTP_HOST/SMTP_USER/SMTP_PASS) — emails will be logged, not sent.");
+  console.warn("Resend is not configured (RESEND_API_KEY) — emails will be logged, not sent.");
 }
 
-export { transporter };
+export { resend };

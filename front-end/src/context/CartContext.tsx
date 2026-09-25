@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { buildCartItemId, type CartItem } from "@/types/cart";
 
 const STORAGE_KEY = "kemer-market-cart";
@@ -31,10 +38,14 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 function loadStoredCart(): CartItem[] {
   if (typeof window === "undefined") return [];
+
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
+
     if (!raw) return [];
+
     const parsed = JSON.parse(raw);
+
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
@@ -51,16 +62,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items]);
 
   function addItem(input: AddToCartInput) {
-    const id = buildCartItemId(input.productId, input.color, input.size);
+    const id = buildCartItemId(
+      input.productId,
+      input.color,
+      input.size
+    );
+
     const quantity = input.quantity ?? 1;
 
     setItems((prev) => {
       const existing = prev.find((item) => item.id === id);
+
       if (existing) {
         return prev.map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + quantity } : item
+          item.id === id
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+              }
+            : item
         );
       }
+
       return [
         ...prev,
         {
@@ -76,6 +99,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       ];
     });
+
     setIsOpen(true);
   }
 
@@ -84,11 +108,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(id);
       return;
     }
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, quantity }
+          : item
+      )
+    );
   }
 
   function removeItem(id: string) {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    setItems((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
   }
 
   function clearCart() {
@@ -97,8 +130,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const { itemCount, subtotal } = useMemo(
     () => ({
-      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-      subtotal: items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+      itemCount: items.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      ),
+      subtotal: items.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0
+      ),
     }),
     [items]
   );
@@ -110,8 +149,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         itemCount,
         subtotal,
         isOpen,
-        openCart: () => setIsOpen(true),
-        closeCart: () => setIsOpen(false),
+
+        openCart: () => {
+          setIsOpen(true);
+        },
+
+        closeCart: () => {
+
+          setIsOpen(false);
+        },
+
         addItem,
         updateQuantity,
         removeItem,
@@ -125,6 +172,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart(): CartContextValue {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used within CartProvider");
+
+  if (!ctx) {
+    throw new Error(
+      "useCart must be used within CartProvider"
+    );
+  }
+
   return ctx;
 }

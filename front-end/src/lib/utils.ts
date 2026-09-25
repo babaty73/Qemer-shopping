@@ -114,11 +114,18 @@ interface RequestApprovalMessageInput {
   size: string;
   quantity: number;
   email: string;
+<<<<<<< HEAD
   telegramUsername?: string;
   deliveryAddress: string;
 }
 
 function buildRequestApprovalMessage(request: RequestApprovalMessageInput, telegramUsername: string): string {
+=======
+  deliveryAddress: string;
+}
+
+function buildRequestApprovalMessage(request: RequestApprovalMessageInput): string {
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
   return [
     "Product request approved — ready to relay to the customer:",
     `Product: ${request.productName}`,
@@ -126,7 +133,10 @@ function buildRequestApprovalMessage(request: RequestApprovalMessageInput, teleg
     `Size: ${request.size}`,
     `Quantity: ${request.quantity}`,
     `Customer email: ${request.email}`,
+<<<<<<< HEAD
     `Telegram: @${telegramUsername}`,
+=======
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
     `Delivery address: ${request.deliveryAddress}`,
   ].join("\n");
 }
@@ -135,6 +145,7 @@ function buildRequestApprovalMessage(request: RequestApprovalMessageInput, teleg
  * Deep link that opens Telegram with a prefilled note after an admin
  * approves a product request — no automated email is sent; the admin
  * reviews this message in Telegram and sends it themselves.
+<<<<<<< HEAD
  *
  * Targets the CUSTOMER's own Telegram username (collected on the request
  * form, stored on `request.telegramUsername`), not the business's
@@ -150,6 +161,12 @@ export function getRequestApprovalTelegramLink(request: RequestApprovalMessageIn
   if (!isValidTelegramUsername(username)) return null;
 
   const text = encodeURIComponent(buildRequestApprovalMessage(request, username));
+=======
+ */
+export function getRequestApprovalTelegramLink(request: RequestApprovalMessageInput): string {
+  const username = import.meta.env.VITE_TELEGRAM_USERNAME ?? "kemermarket";
+  const text = encodeURIComponent(buildRequestApprovalMessage(request));
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
   return `https://t.me/${username}?text=${text}`;
 }
 
@@ -168,14 +185,21 @@ interface OrderAcceptedMessageInput {
     phone: string;
     email: string;
     address: string;
+<<<<<<< HEAD
     telegramUsername?: string;
+=======
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
   };
   items: OrderAcceptedMessageItem[];
   totalPrice: number;
   status: string;
 }
 
+<<<<<<< HEAD
 function buildOrderAcceptedMessage(order: OrderAcceptedMessageInput, telegramUsername: string): string {
+=======
+function buildOrderAcceptedMessage(order: OrderAcceptedMessageInput): string {
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
   const itemLines = order.items.map((item) => {
     const variant = [item.color, item.size].filter(Boolean).join(", ");
     return `- ${item.name}${variant ? ` (${variant})` : ""} x${item.quantity} — ${formatPrice(
@@ -189,7 +213,10 @@ function buildOrderAcceptedMessage(order: OrderAcceptedMessageInput, telegramUse
     `Customer: ${order.customer.fullName}`,
     `Phone: ${order.customer.phone}`,
     `Email: ${order.customer.email}`,
+<<<<<<< HEAD
     `Telegram: @${telegramUsername}`,
+=======
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
     `Delivery address: ${order.customer.address}`,
     "",
     "Items:",
@@ -205,6 +232,7 @@ function buildOrderAcceptedMessage(order: OrderAcceptedMessageInput, telegramUse
  * accepts an order (payment confirmed) — no automated message is sent;
  * the admin reviews this in Telegram and sends it themselves.
  *
+<<<<<<< HEAD
  * This targets the CUSTOMER's own Telegram username (collected at
  * checkout and stored on `order.customer.telegramUsername`), NOT the
  * business's configured handle — unlike getTelegramOrderLink/
@@ -226,5 +254,24 @@ export function getOrderAcceptedTelegramLink(order: OrderAcceptedMessageInput): 
   if (!isValidTelegramUsername(username)) return null;
 
   const text = encodeURIComponent(buildOrderAcceptedMessage(order, username));
+=======
+ * This opens a chat with the BUSINESS'S OWN configured Telegram handle
+ * (VITE_TELEGRAM_USERNAME) — the same target every other Telegram link in
+ * this app uses (getTelegramOrderLink, getTelegramContactLink,
+ * getRequestApprovalTelegramLink). There is no field anywhere for a
+ * customer's own Telegram handle: the Order schema's `customer` object
+ * only has fullName/phone/email/address (checked back-end/src/models/Order.js
+ * and the checkout form), and neither collects a Telegram identifier. A
+ * link that opens the *customer's* own Telegram account isn't possible
+ * with the data this app currently collects — Telegram deep links can
+ * only target a known @username. If customer-targeted messaging is
+ * actually needed, that requires collecting a Telegram handle at
+ * checkout, which is a schema/form change, not something this function
+ * alone can provide.
+ */
+export function getOrderAcceptedTelegramLink(order: OrderAcceptedMessageInput): string {
+  const username = import.meta.env.VITE_TELEGRAM_USERNAME ?? "kemermarket";
+  const text = encodeURIComponent(buildOrderAcceptedMessage(order));
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
   return `https://t.me/${username}?text=${text}`;
 }

@@ -12,6 +12,8 @@ import orderRouter from "./routes/orderRoutes.js";
 import productRequestRouter from "./routes/productRequestRoutes.js";
 
 export const app = express();
+app.set("trust proxy", 1);
+
 
 app.use(helmet());
 app.use(

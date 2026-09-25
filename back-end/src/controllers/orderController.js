@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import { cloudinary } from "../config/cloudinary.js";
 import { Order, ORDER_STATUSES, ORDER_TRANSITIONS, ARCHIVABLE_ORDER_STATUSES } from "../models/Order.js";
 import { Product } from "../models/Product.js";
+<<<<<<< HEAD
 import { normalizeTelegramUsername, isValidTelegramUsername } from "../utils/telegramUsername.js";
+=======
+>>>>>>> ebbbbb2e2b6df6caac576250b52045b7b773adb2
 
 /**
  * POST /api/orders — public. Multipart: text fields + `items` (JSON string

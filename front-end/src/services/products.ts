@@ -3,6 +3,8 @@ import type { Product, ProductFilters, ProductListResponse } from "@/types";
 
 interface GetProductsFilters extends ProductFilters {
   featured?: boolean;
+  /** Used by the admin Dashboard for an accurate Out-of-Stock count without loading the whole catalog. */
+  inStock?: boolean;
   limit?: number;
   /** Excludes a slug from the results — used for "related products" queries. */
   exclude?: string;
@@ -16,6 +18,7 @@ export function getProducts(filters: GetProductsFilters = {}): Promise<ProductLi
   if (filters.page) params.set("page", String(filters.page));
   if (filters.limit) params.set("limit", String(filters.limit));
   if (filters.featured) params.set("featured", "true");
+  if (filters.inStock !== undefined) params.set("inStock", String(filters.inStock));
   if (filters.exclude) params.set("exclude", filters.exclude);
 
   const query = params.toString();
