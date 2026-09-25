@@ -8,6 +8,8 @@ export interface ProductRequest {
   size: string;
   quantity: number;
   email: string;
+  /** Absent on requests created before this field existed — handle gracefully, never assume it's present. */
+  telegramUsername?: string;
   deliveryAddress: string;
   image?: {
     url: string;

@@ -26,6 +26,8 @@ export interface Order {
     phone: string;
     email: string;
     address: string;
+    /** Absent on orders created before this field existed — handle gracefully, never assume it's present. */
+    telegramUsername?: string;
   };
   paymentMethod: string;
   paymentScreenshot: {

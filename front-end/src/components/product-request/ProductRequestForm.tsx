@@ -3,7 +3,7 @@ import { CheckCircle2 } from "lucide-react";
 import { createProductRequest } from "@/services/productRequests";
 import { ImageFilePicker } from "@/components/ui/ImageFilePicker";
 import { buttonVariants } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { cn, isValidTelegramUsername } from "@/lib/utils";
 
 interface FormState {
   productName: string;
@@ -11,6 +11,7 @@ interface FormState {
   size: string;
   quantity: string;
   email: string;
+  telegramUsername: string;
   deliveryAddress: string;
   notes: string;
 }
@@ -21,6 +22,7 @@ const EMPTY_FORM: FormState = {
   size: "",
   quantity: "1",
   email: "",
+  telegramUsername: "",
   deliveryAddress: "",
   notes: "",
 };
@@ -36,6 +38,10 @@ function validate(form: FormState): Errors {
   if (!form.email.trim()) errors.email = "Email is required.";
   else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = "Enter a valid email address.";
   if (!form.deliveryAddress.trim()) errors.deliveryAddress = "Delivery address is required.";
+  if (!form.telegramUsername.trim()) errors.telegramUsername = "Telegram username is required.";
+  else if (!isValidTelegramUsername(form.telegramUsername)) {
+    errors.telegramUsername = "Enter a valid Telegram username (e.g. @customer123).";
+  }
   return errors;
 }
 
@@ -85,6 +91,7 @@ export function ProductRequestForm({ prefillName, onDone }: ProductRequestFormPr
         size: form.size,
         quantity: Number(form.quantity),
         email: form.email,
+        telegramUsername: form.telegramUsername,
         deliveryAddress: form.deliveryAddress,
         notes: form.notes || undefined,
         image: image ?? undefined,
@@ -105,7 +112,7 @@ export function ProductRequestForm({ prefillName, onDone }: ProductRequestFormPr
         </div>
         <p className="mt-4 text-base font-medium text-neutral-900">Request received</p>
         <p className="mt-1.5 text-sm text-neutral-500">
-          We'll review it and email you at {form.email} once we know more.
+          We'll review it and be in touch once we know more.
         </p>
         <button type="button" onClick={onDone} className={cn(buttonVariants(), "mt-6")}>
           Done
@@ -163,6 +170,16 @@ export function ProductRequestForm({ prefillName, onDone }: ProductRequestFormPr
           />
         </Field>
       </div>
+
+      <Field label="Telegram Username" error={errors.telegramUsername}>
+        <input
+          type="text"
+          value={form.telegramUsername}
+          onChange={(e) => updateField("telegramUsername", e.target.value)}
+          placeholder="@customer123"
+          className={cn("field-input", errors.telegramUsername && "field-input-error")}
+        />
+      </Field>
 
       <Field label="Delivery Address" error={errors.deliveryAddress}>
         <textarea

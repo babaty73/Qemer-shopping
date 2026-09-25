@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 
 export const REQUEST_STATUSES = ["Pending Review", "Approved", "Declined"];
 
+// Only Approved/Declined (terminal) requests can be archived — a request
+// still awaiting review should stay in the active list.
+export const ARCHIVABLE_REQUEST_STATUSES = ["Approved", "Declined"];
+
 const productRequestSchema = new Schema(
   {
     productName: {
@@ -21,6 +25,16 @@ const productRequestSchema = new Schema(
       trim: true,
       lowercase: true,
       match: [/^\S+@\S+\.\S+$/, "Enter a valid email address"],
+    },
+    // Stored normalized (no leading "@") — see utils/telegramUsername.js.
+    // Used by the admin dashboard to open a prefilled Telegram chat with
+    // this specific customer when their request is approved. Requests
+    // created before this field existed won't have it; that's expected
+    // and handled gracefully in the admin UI, not treated as an error.
+    telegramUsername: {
+      type: String,
+      required: [true, "Telegram username is required"],
+      trim: true,
     },
     deliveryAddress: { type: String, required: [true, "Delivery address is required"], trim: true },
     image: {

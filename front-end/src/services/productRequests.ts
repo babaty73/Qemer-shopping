@@ -7,6 +7,7 @@ export interface CreateProductRequestInput {
   size: string;
   quantity: number;
   email: string;
+  telegramUsername: string;
   deliveryAddress: string;
   notes?: string;
   image?: File;
@@ -20,6 +21,7 @@ export function createProductRequest(input: CreateProductRequestInput): Promise<
   formData.append("size", input.size);
   formData.append("quantity", String(input.quantity));
   formData.append("email", input.email);
+  formData.append("telegramUsername", input.telegramUsername);
   formData.append("deliveryAddress", input.deliveryAddress);
   if (input.notes) formData.append("notes", input.notes);
   if (input.image) formData.append("image", input.image);
@@ -55,6 +57,14 @@ export function updateProductRequestStatus(id: string, status: RequestStatus): P
   return apiRequest<ProductRequest>(`/product-requests/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+    auth: true,
+  });
+}
+
+export function setProductRequestArchived(id: string, archived: boolean): Promise<ProductRequest> {
+  return apiRequest<ProductRequest>(`/product-requests/${id}/archive`, {
+    method: "PATCH",
+    body: JSON.stringify({ archived }),
     auth: true,
   });
 }

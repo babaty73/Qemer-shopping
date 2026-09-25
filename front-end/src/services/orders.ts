@@ -6,6 +6,7 @@ export interface CheckoutInput {
   phone: string;
   email: string;
   address: string;
+  telegramUsername: string;
   paymentMethod: string;
   notes?: string;
   screenshot: File;
@@ -27,6 +28,7 @@ export function createOrder(input: CheckoutInput): Promise<OrderConfirmation> {
   formData.append("phone", input.phone);
   formData.append("email", input.email);
   formData.append("address", input.address);
+  formData.append("telegramUsername", input.telegramUsername);
   formData.append("paymentMethod", input.paymentMethod);
   if (input.notes) formData.append("notes", input.notes);
 
@@ -74,6 +76,14 @@ export function updateOrderStatus(id: string, status: OrderStatus): Promise<Orde
   return apiRequest<Order>(`/orders/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+    auth: true,
+  });
+}
+
+export function setOrderArchived(id: string, archived: boolean): Promise<Order> {
+  return apiRequest<Order>(`/orders/${id}/archive`, {
+    method: "PATCH",
+    body: JSON.stringify({ archived }),
     auth: true,
   });
 }

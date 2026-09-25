@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Ban, CheckCircle2, ImageOff, XCircle } from "lucide-react";
-import { getProductRequestById, updateProductRequestStatus } from "@/services/productRequests";
+import { Archive, ArchiveRestore, ArrowLeft, CheckCircle2, ImageOff, XCircle } from "lucide-react";
+import { getProductRequestById, setProductRequestArchived, updateProductRequestStatus } from "@/services/productRequests";
 import { RequestStatusBadge } from "@/components/admin/RequestStatusBadge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buttonVariants } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
-import { cn } from "@/lib/utils";
+import { cn, getRequestApprovalTelegramLink } from "@/lib/utils";
 import type { ProductRequest, RequestStatus } from "@/types";
+
+const ARCHIVABLE_STATUSES: RequestStatus[] = ["Approved", "Declined"];
 
 export default function RequestDetail() {
   const { id } = useParams<{ id: string }>();
@@ -15,6 +17,7 @@ export default function RequestDetail() {
 
   const [request, setRequest] = useState<ProductRequest | null | undefined>(undefined);
   const [updating, setUpdating] = useState<RequestStatus | null>(null);
+  const [archiving, setArchiving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -37,11 +40,44 @@ export default function RequestDetail() {
     try {
       const updated = await updateProductRequestStatus(request._id, status);
       setRequest(updated);
-      showToast(`Request marked "${status}" — customer notified by email`);
+      showToast(`Request marked "${status}"`);
+
+      if (status === "Approved") {
+        const telegramLink = getRequestApprovalTelegramLink(updated);
+        if (telegramLink) {
+          // Best-effort — the status update above already succeeded and
+          // must not be reported as failed just because the browser
+          // couldn't open a new tab (e.g. a popup blocker).
+          try {
+            window.open(telegramLink, "_blank", "noopener,noreferrer");
+          } catch {
+            // Intentionally ignored — see comment above.
+          }
+        } else {
+          // No Telegram username on file (e.g. a request submitted before
+          // this field existed) — say so plainly rather than silently
+          // doing nothing or opening the wrong (business) Telegram account.
+          showToast("Request approved — no Telegram username on file for this customer", "error");
+        }
+      }
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to update request", "error");
     } finally {
       setUpdating(null);
+    }
+  }
+
+  async function handleArchiveChange(archived: boolean) {
+    if (!request) return;
+    setArchiving(true);
+    try {
+      const updated = await setProductRequestArchived(request._id, archived);
+      setRequest(updated);
+      showToast(archived ? "Request archived" : "Request restored to active list");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update request", "error");
+    } finally {
+      setArchiving(false);
     }
   }
 
@@ -69,6 +105,8 @@ export default function RequestDetail() {
     );
   }
 
+  const isTerminal = ARCHIVABLE_STATUSES.includes(request.status);
+
   return (
     <div className="max-w-5xl">
       <Link
@@ -85,7 +123,14 @@ export default function RequestDetail() {
             Requested {new Date(request.createdAt).toLocaleString()}
           </p>
         </div>
-        <RequestStatusBadge status={request.status} />
+        <div className="flex items-center gap-2">
+          {request.archived && (
+            <span className="rounded-full border border-border bg-neutral-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              Archived
+            </span>
+          )}
+          <RequestStatusBadge status={request.status} />
+        </div>
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -130,6 +175,10 @@ export default function RequestDetail() {
             <p className="text-base font-medium text-neutral-900">Requester</p>
             <dl className="mt-4 space-y-3 text-sm">
               <Detail label="Email" value={request.email} />
+              <Detail
+                label="Telegram"
+                value={request.telegramUsername ? `@${request.telegramUsername}` : "Not provided"}
+              />
               <Detail label="Delivery Address" value={request.deliveryAddress} />
             </dl>
           </div>
@@ -137,7 +186,7 @@ export default function RequestDetail() {
           <div className="surface-card p-6">
             <p className="text-base font-medium text-neutral-900">Actions</p>
             <div className="mt-4 flex flex-col gap-2">
-              {request.status === "Pending Review" ? (
+              {request.status === "Pending Review" && (
                 <>
                   <button
                     type="button"
@@ -158,11 +207,30 @@ export default function RequestDetail() {
                     {updating === "Declined" ? "Declining…" : "Decline"}
                   </button>
                 </>
-              ) : (
-                <p className="flex items-center gap-2 rounded-xl bg-neutral-50 px-4 py-3 text-sm text-neutral-500">
-                  <Ban className="h-4 w-4 shrink-0" aria-hidden />
-                  This request is in a final state — no further actions available.
-                </p>
+              )}
+
+              {isTerminal && !request.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(true)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <Archive className="h-4 w-4" aria-hidden />
+                  {archiving ? "Archiving…" : "Archive Request"}
+                </button>
+              )}
+
+              {request.archived && (
+                <button
+                  type="button"
+                  onClick={() => handleArchiveChange(false)}
+                  disabled={archiving}
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  <ArchiveRestore className="h-4 w-4" aria-hidden />
+                  {archiving ? "Restoring…" : "Restore from Archive"}
+                </button>
               )}
             </div>
           </div>

@@ -8,13 +8,14 @@ import { PaymentInfoCard } from "@/components/checkout/PaymentInfoCard";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { buttonVariants } from "@/components/ui/Button";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, isValidTelegramUsername } from "@/lib/utils";
 
 interface FormState {
   fullName: string;
   phone: string;
   email: string;
   address: string;
+  telegramUsername: string;
   paymentMethod: string;
   notes: string;
 }
@@ -24,6 +25,7 @@ const EMPTY_FORM: FormState = {
   phone: "",
   email: "",
   address: "",
+  telegramUsername: "",
   paymentMethod: "Bank Transfer",
   notes: "",
 };
@@ -37,6 +39,10 @@ function validate(form: FormState, screenshot: File | null): Errors {
   if (!form.email.trim()) errors.email = "Email is required.";
   else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = "Enter a valid email address.";
   if (!form.address.trim()) errors.address = "Delivery address is required.";
+  if (!form.telegramUsername.trim()) errors.telegramUsername = "Telegram username is required.";
+  else if (!isValidTelegramUsername(form.telegramUsername)) {
+    errors.telegramUsername = "Enter a valid Telegram username (e.g. @customer123).";
+  }
   if (!screenshot) errors.screenshot = "Attach your payment screenshot to continue.";
   return errors;
 }
@@ -75,6 +81,7 @@ export default function Checkout() {
         phone: form.phone,
         email: form.email,
         address: form.address,
+        telegramUsername: form.telegramUsername,
         paymentMethod: form.paymentMethod,
         notes: form.notes || undefined,
         screenshot,
@@ -99,7 +106,7 @@ export default function Checkout() {
         <p className="mt-3 max-w-md text-base leading-relaxed text-neutral-500">
           Order{" "}
           <span className="price-tag text-neutral-700">#{confirmedOrder.id.slice(-8).toUpperCase()}</span> for{" "}
-          {formatPrice(confirmedOrder.total)} is pending payment verification. We'll email you as soon as
+          {formatPrice(confirmedOrder.total)} is pending payment verification. We'll be in touch as soon as
           it's confirmed.
         </p>
         <Link to="/shop" className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
@@ -172,6 +179,16 @@ export default function Checkout() {
               value={form.address}
               onChange={(e) => updateField("address", e.target.value)}
               className={cn("field-input resize-none", errors.address && "field-input-error")}
+            />
+          </Field>
+
+          <Field label="Telegram Username" error={errors.telegramUsername}>
+            <input
+              type="text"
+              value={form.telegramUsername}
+              onChange={(e) => updateField("telegramUsername", e.target.value)}
+              placeholder="@customer123"
+              className={cn("field-input", errors.telegramUsername && "field-input-error")}
             />
           </Field>
 
